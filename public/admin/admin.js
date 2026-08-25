@@ -155,6 +155,10 @@ function setupSocket() {
       const flow = document.getElementById('admin-messages-flow');
       if (flow) flow.innerHTML = '';
     });
+
+    socket.on('orders_updated', async () => {
+      await loadOrders();
+    });
   } catch (e) {
     console.log('Socket setup caught:', e);
   }
@@ -430,6 +434,59 @@ async function loadOrders(render = true) {
   }
 }
 
+function getOrderTimerInfo(order) {
+  if (!order) return { text: '', isExceeded: false };
+  const isPickup = (order.status === 'To Pickup' || order.status === 'Awaiting Pickup' || (order.status && order.status.includes('Pickup')));
+  if (!isPickup) return { text: '', isExceeded: false };
+
+  let createdAtMs = null;
+  if (order.created_at) {
+    const isoStr = order.created_at.includes('T') ? order.created_at : order.created_at.replace(' ', 'T');
+    const parsed = new Date(isoStr).getTime();
+    if (!isNaN(parsed)) createdAtMs = parsed;
+  }
+  if (!createdAtMs) {
+    createdAtMs = (typeof order.id === 'number' && order.id > 1700000000000) ? order.id : Date.now();
+  }
+
+  const elapsedSeconds = Math.max(0, Math.floor((Date.now() - createdAtMs) / 1000));
+  const limitSeconds = 24 * 3600;
+  const totalWindowSeconds = 48 * 3600;
+
+  if (elapsedSeconds >= limitSeconds || elapsedSeconds >= totalWindowSeconds) {
+    return { text: 'Time Limit Exceed', isExceeded: true };
+  }
+
+  const remainingSeconds = Math.max(0, totalWindowSeconds - elapsedSeconds);
+  const hours = Math.floor(remainingSeconds / 3600);
+  const minutes = Math.floor((remainingSeconds % 3600) / 60);
+  const seconds = remainingSeconds % 60;
+  const pad = (n) => String(n).padStart(2, '0');
+  return { text: `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`, isExceeded: false };
+}
+
+let adminOrderTimerInterval = null;
+function startAdminOrderTimers() {
+  if (adminOrderTimerInterval) clearInterval(adminOrderTimerInterval);
+  adminOrderTimerInterval = setInterval(() => {
+    const timerEls = document.querySelectorAll('[data-adm-timer-id]');
+    timerEls.forEach(el => {
+      const orderId = el.getAttribute('data-adm-timer-id');
+      const order = orders.find(o => String(o.id) === String(orderId));
+      if (order) {
+        const info = getOrderTimerInfo(order);
+        if (info.text) {
+          el.textContent = `(${info.text})`;
+          el.style.color = '#fe2c55';
+          el.style.fontWeight = '700';
+        } else {
+          el.textContent = '';
+        }
+      }
+    });
+  }, 1000);
+}
+
 function renderOrdersTable() {
   const tbody = document.getElementById('adm-order-tbody');
   if (!tbody) return;
@@ -440,7 +497,10 @@ function renderOrdersTable() {
   }
 
   tbody.innerHTML = orders.map(o => {
-    const isPickup = (o.status === 'To Pickup' || o.status === 'Awaiting Pickup');
+    const isPickup = (o.status === 'To Pickup' || o.status === 'Awaiting Pickup' || (o.status && o.status.includes('Pickup')));
+    const timerInfo = isPickup ? getOrderTimerInfo(o) : null;
+    const timerText = timerInfo && timerInfo.text ? `<span data-adm-timer-id="${o.id}" style="color:#fe2c55; font-weight:700; margin-left:4px; font-size:11px;">(${timerInfo.text})</span>` : '';
+
     return `
       <tr>
         <td><strong>${o.order_no}</strong></td>
@@ -455,14 +515,17 @@ function renderOrdersTable() {
         <td style="font-weight:700;">$${parseFloat(o.total_amount).toFixed(2)}</td>
         <td style="color:#10b981; font-weight:700;">+$${parseFloat(o.profit).toFixed(2)}</td>
         <td>
-          <select onchange="handleOrderStatusChange(${o.id}, this.value)" class="adm-input" style="padding:5px 8px; font-size:12px; width:auto; font-weight:600; background-color:${isPickup ? '#eff6ff' : '#f9fafb'}; color:${isPickup ? '#1d4ed8' : '#374151'};">
-            <option value="To Pickup" ${isPickup ? 'selected' : ''}>Awaiting Pickup</option>
-            <option value="Waiting for Shipment" ${o.status === 'Waiting for Shipment' ? 'selected' : ''}>Waiting for Shipment</option>
-            <option value="Shipped" ${o.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
-            <option value="Received" ${o.status === 'Received' ? 'selected' : ''}>Received</option>
-            <option value="Completed" ${o.status === 'Completed' ? 'selected' : ''}>Completed</option>
-            <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
-          </select>
+          <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
+            <select onchange="handleOrderStatusChange(${o.id}, this.value)" class="adm-input" style="padding:5px 8px; font-size:12px; width:auto; font-weight:600; background-color:${isPickup ? '#eff6ff' : '#f9fafb'}; color:${isPickup ? '#1d4ed8' : '#374151'};">
+              <option value="To Pickup" ${isPickup ? 'selected' : ''}>Awaiting Pickup</option>
+              <option value="Waiting for Shipment" ${o.status === 'Waiting for Shipment' ? 'selected' : ''}>Waiting for Shipment</option>
+              <option value="Shipped" ${o.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+              <option value="Received" ${o.status === 'Received' ? 'selected' : ''}>Received</option>
+              <option value="Completed" ${o.status === 'Completed' ? 'selected' : ''}>Completed</option>
+              <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+            </select>
+            ${timerText}
+          </div>
         </td>
         <td>
           <button class="btn-action btn-reject" onclick="handleDeleteOrder(${o.id})" title="Delete order from pipeline"><i class="fa-solid fa-trash"></i> Delete</button>
@@ -470,6 +533,8 @@ function renderOrdersTable() {
       </tr>
     `;
   }).join('');
+
+  startAdminOrderTimers();
 }
 
 window.handleOrderStatusChange = async function(id, status) {

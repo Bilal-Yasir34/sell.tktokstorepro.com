@@ -7,17 +7,17 @@
       "avatar": "/uploads/amks_logo.png",
       "level": "V0",
       "rating": 5,
-      "credit_score": 96,
-      "followers": 1420,
-      "balance": 205.54,
-      "pending_balance": 38017.34,
+      "credit_score": 97,
+      "followers": 62,
+      "balance": 218.75,
+      "pending_balance": 36714.34,
       "total_income": 94156.54,
-      "today_orders": 14,
+      "today_orders": 4,
       "today_sales": 5240,
-      "today_profit": 1048,
-      "visitors_today": 1350,
-      "visitors_7days": 9840,
-      "visitors_30days": 42100,
+      "today_profit": 2351,
+      "visitors_today": 1421,
+      "visitors_7days": 9832,
+      "visitors_30days": 42102,
       "rating_rate": 96,
       "notice": "Dear users, please pay attention to your payment. Late payments may negatively impact the store's credit score and other aspects."
     }
@@ -227,12 +227,100 @@
   "transactions": [],
   "messages": [
     {
-      "id": 1,
+      "id": 1787623220549,
       "sender": "admin",
-      "message": "Welcome to TikTok Shop Merchant Support. How can we help you today?",
+      "message": "✨ Exclusive USDT Top-Up Rewards ✨\n\n💎 Top up 1,000 USDT → Receive $250 bonus\n💎 Top up 5,000 USDT → Receive $1,800 bonus\n💎 Top up 10,000 USDT → Receive $3,500 bonus\n💎 Top up 30,000 USDT → Receive $12,000 bonus\n💎 Top up 50,000 USDT → Receive $20,000 bonus\n\n🔥 Top up now and enjoy generous rewards to boost your store!\n\nIf you have any questions, please don't hesitate to contact our online customer service—we're here to help! 🙌",
       "image_url": "",
       "is_read": 0,
-      "created_at": "2026-08-24 08:00:00"
+      "created_at": "2026-08-25 02:00:20"
+    },
+    {
+      "id": 1787624491895,
+      "sender": "admin",
+      "message": "Dear Merchants, 👋  🔧 Scheduled Maintenance Notice  The TikTok Seller Center is currently undergoing scheduled maintenance. During this period, you may temporarily be unable to receive new orders.  We kindly ask for your patience and understanding while we complete the maintenance. 🙏  🚀 We’re working to get everything ready and look forward to delivering the updated app to you soon!  Thank you for your continued support. ❤️  Regards, Team TikTok Seller Center",
+      "image_url": "",
+      "is_read": 0,
+      "created_at": "2026-08-25 02:21:31"
+    },
+    {
+      "id": 1787625204984,
+      "sender": "client",
+      "message": "Hello sir, the orders in the pickup section had a timer running on them but now do not see the timer. So do I pick them up right now or do I pick them up after the scheduled maintenance? Will the timer reset? And when will I receive my pending amount in my balance?",
+      "image_url": "",
+      "is_read": 0,
+      "created_at": "2026-08-25 02:33:24"
+    },
+    {
+      "id": 1787625904086,
+      "sender": "client",
+      "message": "Hello sir, the orders in the pickup section had a timer running on them but now do not see the timer. So do I pick them up right now or do I pick them up after the scheduled maintenance? Will the timer reset? And when will I receive my pending amount in my balance?",
+      "image_url": "",
+      "is_read": 0,
+      "created_at": "2026-08-25 02:45:04"
+    },
+    {
+      "id": 1787626442111,
+      "sender": "admin",
+      "message": "Dear Merchant,  We sincerely apologize for any inconvenience and appreciate your patience.  Please be informed that the system will undergo a refresh/update to ensure that merchants can continue receiving new orders and operate smoothly and hassle-free.  During this process, the timer for all awaiting orders will be reset, and a new 48-hour timer will begin. Please note that the order history may not be available after the system refresh, while any pending amounts will be added to your balance shortly.  We kindly request you to remain patient while the system refresh is being completed. Everything will be updated accordingly, allowing you to continue managing your orders smoothly.  Thank you for your understanding and cooperation.  Regards, Team TikTok Seller Center",
+      "image_url": "",
+      "is_read": 0,
+      "created_at": "2026-08-25 02:54:02"
+    },
+    {
+      "id": 1787627333616,
+      "sender": "client",
+      "message": "Hello Sir, one more thing, the awaiting pickup orders do not show the timer anymore, so I will not pickup any orders until the timer has come and been updated. So, will not picking up these orders affect my credit score and rating rate until the timer has come?",
+      "image_url": "",
+      "is_read": 0,
+      "created_at": "2026-08-25 03:08:53"
+    },
+    {
+      "id": 1787627712249,
+      "sender": "client",
+      "message": "Hello Sir, one more thing, the awaiting pickup orders do not show the timer anymore, so I will not pickup any orders until the timer has come and been updated. So, will not picking up these orders affect my credit score and rating rate until the timer has come?",
+      "image_url": "",
+      "is_read": 0,
+      "created_at": "2026-08-25 03:15:12"
+    },
+    {
+      "id": 1787627833941,
+      "sender": "admin",
+      "message": "Dear Merchant,  Please be assured that your rating rate/credit score will not be affected as long as you continue to process and pick up your orders within the designated timeframe.  Your rating or credit score may only be affected if you fail to pick up an order after the order timer has started and the order remains unprocessed beyond the specified timeframe.  Thank you for your cooperation and continued commitment.  Regards, Team TikTok Seller Center",
+      "image_url": "",
+      "is_read": 0,
+      "created_at": "2026-08-25 03:17:13"
+    },
+    {
+      "id": 1787628531784,
+      "sender": "client",
+      "message": "Hello Sir, 7 days going on were completed till 3 days and today is the 4th day. So will the 4th day be considered or will this time also be counted after the maintenance period?",
+      "image_url": "",
+      "is_read": 0,
+      "created_at": "2026-08-25 03:28:51"
+    },
+    {
+      "id": 1787628995787,
+      "sender": "client",
+      "message": "Hello Sir, 7 days going on were completed till 3 days and today is the 4th day. So will the 4th day be considered or will this time also be counted after the maintenance period?",
+      "image_url": "",
+      "is_read": 0,
+      "created_at": "2026-08-25 03:36:35"
+    },
+    {
+      "id": 1787630518137,
+      "sender": "client",
+      "message": "Hello Sir, 7 days going on were completed till 3 days and today is the 4th day. So will the 4th day be considered or will this time also be counted after the maintenance period?",
+      "image_url": "",
+      "is_read": 0,
+      "created_at": "2026-08-25 04:01:58"
+    },
+    {
+      "id": 1787630908674,
+      "sender": "admin",
+      "message": "Your days will only be counted when the maintenance has been completed and you start picking up orders. However, your 4th day will still be counted, but the 5th day will be counted after the maintenance is completed and you pickup orders again.",
+      "image_url": "",
+      "is_read": 0,
+      "created_at": "2026-08-25 04:08:28"
     }
   ],
   "notifications": [
@@ -242,7 +330,7 @@
       "sent_time": "2026-08-24 11:14:02",
       "type": "System Message",
       "sender": "System",
-      "is_read": 1
+      "is_read": 0
     },
     {
       "id": 2,
@@ -250,7 +338,7 @@
       "sent_time": "2026-08-24 11:13:37",
       "type": "System Message",
       "sender": "System",
-      "is_read": 1
+      "is_read": 0
     }
   ],
   "faqs": [

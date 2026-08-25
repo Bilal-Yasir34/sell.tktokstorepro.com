@@ -125,6 +125,7 @@ app.get('/api/orders', async (req, res) => {
 app.post('/api/orders', async (req, res) => {
   try {
     const order = await db.createOrder(req.body);
+    io.emit('orders_updated', order);
     res.json({ success: true, data: order });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -135,6 +136,7 @@ app.put('/api/orders/:id/status', async (req, res) => {
   try {
     const { status } = req.body;
     const updated = await db.updateOrderStatus(req.params.id, status);
+    io.emit('orders_updated', updated);
     res.json({ success: true, data: updated });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -144,6 +146,7 @@ app.put('/api/orders/:id/status', async (req, res) => {
 app.delete('/api/orders/:id', async (req, res) => {
   try {
     await db.deleteOrder(req.params.id);
+    io.emit('orders_updated');
     res.json({ success: true, message: 'Order deleted successfully' });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });

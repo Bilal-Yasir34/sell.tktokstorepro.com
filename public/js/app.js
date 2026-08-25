@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let chatMessages = [];
   let faqs = [];
   let salesChart = null;
-  let currentOrderPipeline = 'To Pickup';
+  let currentOrderPipeline = 'Awaiting Pickup';
   let selectedWithdrawalMethod = 'Bank Card';
   let clientPollingTimer = null;
 
@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     await fetchChatMessages();
     await fetchNotificationsData();
     initSalesChart();
+    initBannerSlider();
     setupChatListeners();
     startClientPolling();
   }
@@ -85,6 +86,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const flow = document.getElementById('messages-flow');
         if (flow) flow.innerHTML = '';
         showToast('All chat messages cleared by admin');
+      });
+
+      socket.on('orders_updated', async () => {
+        await fetchOrders(currentOrderPipeline);
       });
     } catch (e) {
       console.log('Socket init caught:', e);
@@ -274,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     container.innerHTML = list.map((p) => `
-      <div class="product-card" onclick="showToast('Product selected: ' + '${p.title.replace(/'/g, "\\'")}')">
+      <div class="product-card" onclick="openProductDetail('${p.id}')" style="cursor:pointer;">
         ${p.image_url ? `<img src="${p.image_url}" alt="${p.title}" class="prod-thumb">` : `<div class="prod-thumb-placeholder"><i class="fa-regular fa-image"></i></div>`}
         <div class="prod-details">
           <div class="prod-title">${p.title}</div>
@@ -301,6 +306,63 @@ document.addEventListener('DOMContentLoaded', () => {
       renderProductFeed(products);
     }
   };
+
+  // Promotional Banner Slider Engine (3 seconds auto-slide with touch support)
+  let currentBannerIndex = 0;
+  let bannerSlideTimer = null;
+
+  function initBannerSlider() {
+    const track = document.getElementById('promo-banner-track');
+    const dots = document.querySelectorAll('#promo-banner-dots .pbd-dot');
+    if (!track || dots.length === 0) return;
+
+    window.goToBannerSlide = function(index) {
+      const totalSlides = dots.length;
+      if (index >= totalSlides) currentBannerIndex = 0;
+      else if (index < 0) currentBannerIndex = totalSlides - 1;
+      else currentBannerIndex = index;
+
+      track.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
+      dots.forEach((d, idx) => {
+        if (idx === currentBannerIndex) d.classList.add('active');
+        else d.classList.remove('active');
+      });
+    };
+
+    window.nextBannerSlide = function() {
+      goToBannerSlide(currentBannerIndex + 1);
+    };
+
+    function startBannerInterval() {
+      if (bannerSlideTimer) clearInterval(bannerSlideTimer);
+      bannerSlideTimer = setInterval(() => {
+        nextBannerSlide();
+      }, 3000);
+    }
+
+    startBannerInterval();
+
+    // Touch swipe handling
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const container = track.parentElement;
+    if (container) {
+      container.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+        if (bannerSlideTimer) clearInterval(bannerSlideTimer);
+      }, { passive: true });
+
+      container.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        const diff = touchStartX - touchEndX;
+        if (Math.abs(diff) > 40) {
+          if (diff > 0) nextBannerSlide();
+          else goToBannerSlide(currentBannerIndex - 1);
+        }
+        startBannerInterval();
+      }, { passive: true });
+    }
+  }
 
   // Default Exact Orders (Matching Screenshots 1, 3, 5)
   const DEFAULT_ORDERS = [
@@ -411,11 +473,14 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const res = await fetch('/api/orders?status=All');
       const json = await res.json();
-      if (json.success && Array.isArray(json.data)) {
+      if (json.success && Array.isArray(json.data) && json.data.length > 0) {
         orders = json.data;
+      } else {
+        orders = DEFAULT_ORDERS;
       }
     } catch (err) {
       console.error('Error fetching orders:', err);
+      orders = DEFAULT_ORDERS;
     }
     renderOrderFeed(orders);
     updateOrderBadges();
@@ -435,13 +500,101 @@ document.addEventListener('DOMContentLoaded', () => {
     if (navOrderBadge) navOrderBadge.textContent = pickupCount;
   }
 
+  // Realtime 48-Hour Countdown Engine with 24-Hour Exceed Threshold
+  function getOrderTimerInfo(order) {
+    if (!order) return { text: '', isExceeded: false };
+
+    const status = (order.status || '').toLowerCase();
+    const isPickup = status.includes('pickup') || status === 'to pickup' || status === 'awaiting pickup';
+    if (!isPickup) return { text: '', isExceeded: false };
+
+    let createdAtMs = null;
+    if (order.created_at) {
+      const isoStr = order.created_at.includes('T') ? order.created_at : order.created_at.replace(' ', 'T');
+      const parsed = new Date(isoStr).getTime();
+      if (!isNaN(parsed)) {
+        createdAtMs = parsed;
+      }
+    }
+
+    if (!createdAtMs) {
+      createdAtMs = (typeof order.id === 'number' && order.id > 1700000000000) ? order.id : Date.now();
+    }
+
+    const elapsedSeconds = Math.max(0, Math.floor((Date.now() - createdAtMs) / 1000));
+    const limitSeconds = 24 * 3600; // 24 hours threshold where limit exceeds
+    const totalWindowSeconds = 48 * 3600; // 48 hours total timer window
+
+    // When 24 hours have passed, show "Time Limit Exceed"
+    if (elapsedSeconds >= limitSeconds || elapsedSeconds >= totalWindowSeconds) {
+      return { text: 'Time Limit Exceed', isExceeded: true };
+    }
+
+    const remainingSeconds = Math.max(0, totalWindowSeconds - elapsedSeconds);
+    const hours = Math.floor(remainingSeconds / 3600);
+    const minutes = Math.floor((remainingSeconds % 3600) / 60);
+    const seconds = remainingSeconds % 60;
+
+    const pad = (n) => String(n).padStart(2, '0');
+    return {
+      text: `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`,
+      isExceeded: false
+    };
+  }
+
+  let orderRealtimeTimer = null;
+  function startOrderRealtimeTimers() {
+    if (orderRealtimeTimer) clearInterval(orderRealtimeTimer);
+    orderRealtimeTimer = setInterval(() => {
+      const list = (orders && orders.length > 0) ? orders : DEFAULT_ORDERS;
+
+      // Update in-feed order cards
+      const timerEls = document.querySelectorAll('[data-timer-order-id]');
+      timerEls.forEach(el => {
+        const orderId = el.getAttribute('data-timer-order-id');
+        const order = list.find(o => String(o.id) === String(orderId));
+        if (order) {
+          const info = getOrderTimerInfo(order);
+          if (info.text) {
+            el.textContent = `(${info.text})`;
+            if (info.isExceeded) {
+              el.classList.add('oc-timer-exceeded');
+            } else {
+              el.classList.remove('oc-timer-exceeded');
+            }
+          } else {
+            el.textContent = '';
+          }
+        }
+      });
+
+      // Update order detail modal timer if active
+      const detailTimerEl = document.getElementById('od-realtime-timer');
+      if (detailTimerEl) {
+        const detailOrderId = detailTimerEl.getAttribute('data-order-id');
+        if (detailOrderId) {
+          const detailOrder = list.find(o => String(o.id) === String(detailOrderId));
+          if (detailOrder) {
+            const info = getOrderTimerInfo(detailOrder);
+            detailTimerEl.textContent = info.text;
+            if (info.isExceeded) {
+              detailTimerEl.classList.add('oc-timer-exceeded');
+            } else {
+              detailTimerEl.classList.remove('oc-timer-exceeded');
+            }
+          }
+        }
+      }
+    }, 1000);
+  }
+
   function renderOrderFeed(list) {
     const container = document.getElementById('order-list-container');
     if (!container) return;
 
     let filtered = list;
     if (currentOrderPipeline === 'Awaiting Pickup') {
-      filtered = list.filter(o => o.status.includes('Pickup'));
+      filtered = list.filter(o => o.status.includes('Pickup') || o.status === 'To Pickup');
     } else if (currentOrderPipeline === 'Completed') {
       filtered = list.filter(o => o.status === 'Completed');
     } else if (currentOrderPipeline !== 'All orders') {
@@ -460,16 +613,22 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    container.innerHTML = filtered.map(o => `
-      <div class="order-card-box">
+    container.innerHTML = filtered.map(o => {
+      const isPickup = (o.status && o.status.includes('Pickup')) || o.status === 'To Pickup' || o.status === 'Awaiting Pickup';
+      const displayStatus = isPickup ? 'Awaiting Pickup' : o.status;
+      const timerInfo = isPickup ? getOrderTimerInfo(o) : null;
+      const timerHtml = timerInfo && timerInfo.text ? ` <span class="oc-timer ${timerInfo.isExceeded ? 'oc-timer-exceeded' : ''}" data-timer-order-id="${o.id}">(${timerInfo.text})</span>` : '';
+
+      return `
+      <div class="order-card-box" onclick="openOrderDetail('${o.id}')" style="cursor:pointer;">
         <div class="oc-top-bar">
           <span class="oc-dots">...</span>
           <div class="oc-top-right">
-            <span class="oc-status-text">${o.status}${o.timer_countdown ? `<span class="oc-timer">(${o.timer_countdown})</span>` : ''}</span>
+            <span class="oc-status-text">${displayStatus}${timerHtml}</span>
             <span class="oc-checkbox" data-order-id="${o.id}" onclick="event.stopPropagation(); this.classList.toggle('checked'); updateSelectAllState();"></span>
           </div>
         </div>
-        <div class="oc-main-content" onclick="openOrderDetail(${o.id})" style="cursor:pointer;">
+        <div class="oc-main-content">
           <img src="${o.product_image}" class="oc-prod-thumb" onerror="this.src='/uploads/iphone_silver.png'">
           <div class="oc-prod-details">
             <div class="oc-prod-title">${o.product_title}</div>
@@ -486,11 +645,14 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
         </div>
         <div class="oc-bottom-bar">
-          <span class="oc-details-btn" onclick="openOrderDetail(${o.id})" style="cursor:pointer;">Details</span>
-          ${(o.status && o.status.includes('Pickup')) ? `<button class="btn-click-pickup" onclick="event.stopPropagation(); pickupSingleOrder(${o.id}, this)">Click to Pickup</button>` : ''}
+          <span class="oc-details-btn" style="cursor:pointer;">Details</span>
+          ${isPickup ? `<button class="btn-click-pickup" onclick="event.stopPropagation(); pickupSingleOrder(${o.id}, this)">Click to Pickup</button>` : ''}
         </div>
       </div>
-    `).join('');
+    `;
+    }).join('');
+
+    startOrderRealtimeTimers();
   }
 
   window.switchOrderPipeline = function(status) {
@@ -1134,6 +1296,11 @@ document.addEventListener('DOMContentLoaded', () => {
     scrollChatToBottom();
   };
 
+  window.closeSubView = function(viewId) {
+    const view = document.getElementById(viewId);
+    if (view) view.classList.remove('active');
+  };
+
   window.openRecharge = function() {
     document.getElementById('sub-recharge').classList.add('active');
   };
@@ -1142,76 +1309,212 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('sub-withdrawal').classList.add('active');
   };
 
+  window.openPersonalInfo = function() {
+    const view = document.getElementById('sub-personal-info');
+    if (view) view.classList.add('active');
+  };
+
+  window.openShopSettings = function() {
+    const view = document.getElementById('sub-settings');
+    if (view) view.classList.add('active');
+  };
+
+  window.openProductDetail = function(productId) {
+    const list = (products && products.length > 0) ? products : DEFAULT_PRODUCTS;
+    const prod = list.find(p => p.id == productId || p.id == parseInt(productId)) || list[0];
+    if (!prod) return;
+
+    const orderList = (orders && orders.length > 0) ? orders : DEFAULT_ORDERS;
+    const matchingOrder = orderList.find(o => o.product_title === prod.title || o.product_image === prod.image_url);
+
+    if (matchingOrder) {
+      openOrderDetail(matchingOrder.id);
+    } else {
+      const synthOrder = {
+        id: prod.id,
+        order_no: `20260825${Math.floor(10000000000000 + Math.random() * 90000000000000)}`,
+        product_title: prod.title,
+        product_image: prod.image_url || '/uploads/powerstation.png',
+        price: prod.price || 803.31,
+        quantity: 1,
+        profit: (prod.price || 803.31) * 0.15,
+        total_amount: prod.price || 803.31,
+        shipping_address: 'FREUNDSAM Aufeld 62 Austria',
+        phone_number: '430****796',
+        created_at: '2026-08-25 14:29:01',
+        status: 'Awaiting Pickup'
+      };
+      displayOrderDetailModal(synthOrder);
+    }
+  };
+
   // Order Detail Sub-View Handlers (100% Screenshot Match)
   window.openOrderDetail = function(orderId) {
     const list = (orders && orders.length > 0) ? orders : DEFAULT_ORDERS;
-    const order = list.find(o => o.id == orderId) || list[0];
+    let order = list.find(o => String(o.id) === String(orderId) || String(o.order_no) === String(orderId));
+    if (!order) {
+      order = DEFAULT_ORDERS.find(o => String(o.id) === String(orderId) || String(o.order_no) === String(orderId)) || list[0] || DEFAULT_ORDERS[0];
+    }
     if (!order) return;
 
-    const setT = (id, val) => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = val;
-    };
+    displayOrderDetailModal(order);
+  };
 
-    const img = document.getElementById('od-img');
-    if (img) img.src = order.product_image || '/uploads/powerstation.png';
+  function displayOrderDetailModal(order) {
+    try {
+      const setT = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
+      };
 
-    setT('od-title', order.product_title);
-    setT('od-qty', `x${order.quantity || 1}`);
-    setT('od-price', `$ ${parseFloat(order.price).toFixed(2)}`);
-    setT('od-order-no', order.order_no);
-    setT('od-address', order.shipping_address || 'Šentrupert Tavcarjeva 62 Slovenia');
-    setT('od-phone', order.phone_number || '386****005');
-    setT('od-time', order.created_at || '2026-08-25 00:29:28');
+      const img = document.getElementById('od-img');
+      if (img) img.src = order.product_image || '/uploads/powerstation.png';
 
-    const earnings = order.profit ? parseFloat(order.profit) : (order.price * 0.15);
-    const payment = order.total_amount ? parseFloat(order.total_amount) : (order.price * (order.quantity || 1));
+      setT('od-title', order.product_title || 'Product');
+      setT('od-qty', `x${order.quantity || 1}`);
+      setT('od-price', `$ ${parseFloat(order.price || 0).toFixed(2)}`);
+      setT('od-order-no', order.order_no || '2026082559686494244910');
+      setT('od-address', order.shipping_address || 'FREUNDSAM Aufeld 62 Austria');
+      setT('od-phone', order.phone_number || '430****796');
+      setT('od-time', order.created_at || '2026-08-25 14:29:01');
 
-    setT('od-earnings', `$ ${earnings.toFixed(2)}`);
-    setT('od-payment', `$${payment.toFixed(2)}`);
+      const earnings = order.profit ? parseFloat(order.profit) : (order.earnings ? parseFloat(order.earnings) : ((order.price || 0) * 0.15));
+      const payment = order.total_amount ? parseFloat(order.total_amount) : ((order.price || 0) * (order.quantity || 1));
 
-    // Check Shipped / Logistics Status (100% Screenshot Match)
-    const isShipped = order.status && (
-      order.status.toLowerCase().includes('shipped') ||
-      order.status.toLowerCase().includes('received') ||
-      order.status.toLowerCase().includes('completed') ||
-      order.status.toLowerCase().includes('shipment')
-    );
+      setT('od-earnings', `$ ${earnings.toFixed(2)}`);
+      setT('od-payment', `$${payment.toFixed(2)}`);
 
-    const noLogisticsElem = document.getElementById('od-no-logistics');
-    const shippedProgressElem = document.getElementById('od-shipped-progress');
-    const trackingNumElem = document.getElementById('od-tracking-num');
-    const execTimeElem = document.getElementById('od-exec-time');
+      // Check Shipped / Completed / Received Logistics Status (100% Screenshot Match)
+      const statusLower = (order.status || '').toLowerCase();
+      const isCompleted = statusLower === 'completed' || statusLower === 'received';
+      const isShipped = statusLower === 'shipped';
 
-    if (isShipped) {
-      if (noLogisticsElem) noLogisticsElem.style.display = 'none';
-      if (shippedProgressElem) shippedProgressElem.style.display = 'block';
-      if (trackingNumElem) trackingNumElem.textContent = order.tracking_number || order.order_no || '2026082455230395445550';
-      if (execTimeElem) execTimeElem.textContent = order.execution_time || order.shipped_at || '2026-08-24 22:04:29';
-    } else {
-      if (noLogisticsElem) noLogisticsElem.style.display = 'block';
-      if (shippedProgressElem) shippedProgressElem.style.display = 'none';
-      if (trackingNumElem) trackingNumElem.textContent = '';
+      const noLogisticsElem = document.getElementById('od-no-logistics');
+      const shippedProgressElem = document.getElementById('od-shipped-progress');
+      const trackingNumElem = document.getElementById('od-tracking-num');
+
+      if (isCompleted) {
+        if (noLogisticsElem) noLogisticsElem.style.display = 'none';
+        if (shippedProgressElem) {
+          shippedProgressElem.style.display = 'block';
+          shippedProgressElem.innerHTML = generateCompletedTimeline(order);
+        }
+        if (trackingNumElem) trackingNumElem.textContent = order.tracking_number || order.order_no || '2026082340782992364850';
+      } else if (isShipped) {
+        if (noLogisticsElem) noLogisticsElem.style.display = 'none';
+        if (shippedProgressElem) {
+          shippedProgressElem.style.display = 'block';
+          shippedProgressElem.innerHTML = generateShippedSingleStep(order);
+        }
+        if (trackingNumElem) trackingNumElem.textContent = order.tracking_number || order.order_no || '2026082455230395445550';
+      } else {
+        if (noLogisticsElem) noLogisticsElem.style.display = 'block';
+        if (shippedProgressElem) {
+          shippedProgressElem.style.display = 'none';
+          shippedProgressElem.innerHTML = '';
+        }
+        if (trackingNumElem) trackingNumElem.textContent = '';
+      }
+
+      window.pickupCurrentDetailOrder = function() {
+        closeSubView('sub-order-detail');
+        pickupSingleOrder(String(order.id));
+      };
+    } catch (e) {
+      console.error('Error populating order detail:', e);
     }
-
-    const isPickup = order.status && (
-      order.status.includes('Pickup') ||
-      order.status === 'To Pickup' ||
-      order.status === 'Awaiting Pickup'
-    );
-    const odPickupWrap = document.getElementById('od-pickup-btn-wrap');
-    if (odPickupWrap) {
-      odPickupWrap.style.display = isPickup ? 'block' : 'none';
-    }
-
-    window.pickupCurrentDetailOrder = function() {
-      closeSubView('sub-order-detail');
-      pickupSingleOrder(order.id);
-    };
 
     const view = document.getElementById('sub-order-detail');
-    if (view) view.classList.add('active');
-  };
+    if (view) {
+      view.classList.add('active');
+      view.scrollTop = 0;
+    }
+  }
+
+  function generateCompletedTimeline(order) {
+    const baseDate = order.created_at ? new Date(order.created_at) : new Date(Date.now() - 7 * 86400000);
+    const fmtTime = (d) => {
+      const pad = (n) => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    };
+
+    const t7 = new Date(baseDate.getTime());
+    const t6 = new Date(baseDate.getTime() + 1 * 86400000 - 3600000);
+    const t5 = new Date(baseDate.getTime() + 2 * 86400000 + 7200000);
+    const t4 = new Date(baseDate.getTime() + 4 * 86400000 + 14400000);
+    const t3 = new Date(baseDate.getTime() + 5 * 86400000 + 21600000);
+    const t2 = new Date(baseDate.getTime() + 6 * 86400000 + 10800000);
+    const t1 = new Date(baseDate.getTime() + 6 * 86400000 + 36000000);
+
+    return `
+      <div class="od-timeline-container">
+        <div class="od-timeline-step active">
+          <div class="od-step-icon active"><i class="fa-solid fa-circle-check"></i></div>
+          <div class="od-step-content">
+            <div class="od-step-status">Shipping Status:Payment successful, please wait for sorting and delivery.</div>
+            <div class="od-step-time">Execution Time:${fmtTime(t1)}</div>
+          </div>
+        </div>
+        <div class="od-timeline-step">
+          <div class="od-step-icon dot"></div>
+          <div class="od-step-content">
+            <div class="od-step-status">Shipping Status:The package has been shipped out and is being sent to the next delivery station.</div>
+            <div class="od-step-time">Execution Time:${fmtTime(t2)}</div>
+          </div>
+        </div>
+        <div class="od-timeline-step">
+          <div class="od-step-icon dot"></div>
+          <div class="od-step-content">
+            <div class="od-step-status">Shipping Status:The package has been loaded and is being sent to the transit center.</div>
+            <div class="od-step-time">Execution Time:${fmtTime(t3)}</div>
+          </div>
+        </div>
+        <div class="od-timeline-step">
+          <div class="od-step-icon dot"></div>
+          <div class="od-step-content">
+            <div class="od-step-status">Shipping Status:The package has arrived at the regional transfer station and is being delivered to the city sorting center.</div>
+            <div class="od-step-time">Execution Time:${fmtTime(t4)}</div>
+          </div>
+        </div>
+        <div class="od-timeline-step">
+          <div class="od-step-icon dot"></div>
+          <div class="od-step-content">
+            <div class="od-step-status">Shipping Status:The package has arrived at the city sorting center and is being sorted.</div>
+            <div class="od-step-time">Execution Time:${fmtTime(t5)}</div>
+          </div>
+        </div>
+        <div class="od-timeline-step">
+          <div class="od-step-icon dot"></div>
+          <div class="od-step-content">
+            <div class="od-step-status">Shipping Status:The package delivery has been sorted and is being delivered.</div>
+            <div class="od-step-time">Execution Time:${fmtTime(t6)}</div>
+          </div>
+        </div>
+        <div class="od-timeline-step">
+          <div class="od-step-icon dot"></div>
+          <div class="od-step-content">
+            <div class="od-step-status">Shipping Status:User has signed and received the package.</div>
+            <div class="od-step-time">Execution Time:${fmtTime(t7)}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function generateShippedSingleStep(order) {
+    const execTime = order.execution_time || order.shipped_at || order.created_at || '2026-08-24 22:04:29';
+    return `
+      <div class="od-timeline-container">
+        <div class="od-timeline-step active">
+          <div class="od-step-icon active"><i class="fa-solid fa-circle-check"></i></div>
+          <div class="od-step-content">
+            <div class="od-step-status">Shipping Status:User has signed and received the package.</div>
+            <div class="od-step-time">Execution Time:${execTime}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
 
   window.copyOrderNumber = function() {
     const el = document.getElementById('od-order-no');
@@ -1379,12 +1682,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.chooseWithdrawalMethod = function(method) {
     closeWithdrawalMethodSheet();
-
-    if (method === 'Bank Card' || method.toLowerCase().includes('bank')) {
-      showBankNoticeModal();
-      return;
-    }
-
     selectedWithdrawalMethod = method;
 
     const label = document.getElementById('withdraw-selected-method');
@@ -1394,8 +1691,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const bankFields = document.getElementById('bank-card-fields');
-    if (bankFields) {
-      bankFields.style.display = 'none';
+    const blockchainFields = document.getElementById('blockchain-fields');
+
+    if (method === 'Bank Card') {
+      if (bankFields) bankFields.style.display = 'block';
+      if (blockchainFields) blockchainFields.style.display = 'none';
+    } else if (method === 'Blockchain') {
+      if (bankFields) bankFields.style.display = 'none';
+      if (blockchainFields) blockchainFields.style.display = 'block';
+    } else {
+      if (bankFields) bankFields.style.display = 'none';
+      if (blockchainFields) blockchainFields.style.display = 'none';
     }
   };
 
@@ -1409,9 +1715,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // Submit Withdrawal Request
   window.submitWithdrawal = async function() {
     const amount = parseFloat(document.getElementById('withdraw-amount').value);
-    const fullName = document.getElementById('withdraw-fullname').value.trim();
-    const bankName = document.getElementById('withdraw-bankname').value.trim();
-    const iban = document.getElementById('withdraw-iban').value.trim();
+    const fullName = document.getElementById('withdraw-fullname') ? document.getElementById('withdraw-fullname').value.trim() : '';
+    const bankName = document.getElementById('withdraw-bankname') ? document.getElementById('withdraw-bankname').value.trim() : '';
+    const iban = document.getElementById('withdraw-iban') ? document.getElementById('withdraw-iban').value.trim() : '';
+    const network = document.getElementById('withdraw-blockchain-network') ? document.getElementById('withdraw-blockchain-network').value.trim() : '';
+    const address = document.getElementById('withdraw-blockchain-address') ? document.getElementById('withdraw-blockchain-address').value.trim() : '';
 
     if (!amount || amount <= 0) {
       showToast('Please enter a valid withdrawal amount');
@@ -1429,6 +1737,11 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    if (selectedWithdrawalMethod === 'Blockchain' && (!network || !address)) {
+      showToast('Please fill in all blockchain details');
+      return;
+    }
+
     try {
       const res = await fetch('/api/withdrawal', {
         method: 'POST',
@@ -1438,7 +1751,9 @@ document.addEventListener('DOMContentLoaded', () => {
           amount,
           full_name: fullName,
           bank_name: bankName,
-          iban: iban
+          iban: iban,
+          network: network,
+          address: address
         })
       });
       const json = await res.json();
@@ -1550,4 +1865,37 @@ document.addEventListener('DOMContentLoaded', () => {
       toast.style.display = 'none';
     }, 2500);
   };
+});
+
+// ============================================================
+// GLOBAL DELEGATED CLICK HANDLER FOR ORDER CARDS
+// This is a belt-and-suspenders approach: even if inline onclick
+// fails for any reason, this catches all clicks on order cards.
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+  const orderList = document.getElementById('order-list-container');
+  if (orderList) {
+    orderList.addEventListener('click', function(e) {
+      // Walk up from the clicked target to find the order card
+      let el = e.target;
+      while (el && el !== orderList) {
+        if (el.classList && el.classList.contains('order-card-box')) {
+          // Get the orderId from the onclick attribute or data
+          const onclickAttr = el.getAttribute('onclick') || '';
+          const match = onclickAttr.match(/openOrderDetail\('([^']+)'\)/);
+          const orderId = match ? match[1] : null;
+          if (orderId && typeof window.openOrderDetail === 'function') {
+            window.openOrderDetail(orderId);
+          } else {
+            // Last resort: just open the panel
+            const view = document.getElementById('sub-order-detail');
+            if (view) { view.classList.add('active'); view.scrollTop = 0; }
+          }
+          e.stopPropagation();
+          return;
+        }
+        el = el.parentElement;
+      }
+    }, true); // Use capture phase to fire before any other handlers
+  }
 });

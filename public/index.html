@@ -11,12 +11,7 @@
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/favicon.png">
 
-  <!-- Google Fonts: Inter & Outfit -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700&display=swap"
-    rel="stylesheet">
+  <!-- Native Apple/Segoe UI System Font Stack -->
 
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -65,21 +60,24 @@
           </div>
         </div>
 
-        <!-- Promotional Banner Card (Exact Screenshot Match) -->
-        <div class="promo-banner-card">
-          <div class="pbc-left">
-            <div class="pbc-title">TikTok:</div>
-            <div class="pbc-title-sub">Shop</div>
-            <div class="pbc-cyan-arc"></div>
+        <!-- Promotional Banner Slider (Auto-sliding 3-second carousel) -->
+        <div class="promo-banner-slider-container">
+          <div class="promo-banner-slider-track" id="promo-banner-track">
+            <div class="promo-banner-slide">
+              <img src="/uploads/banner_slide_1.png" alt="TikTok Shop Traffic Package (English)" class="promo-banner-img">
+            </div>
+            <div class="promo-banner-slide">
+              <img src="/uploads/banner_slide_2.png" alt="TikTok Shop Traffic Package (Indonesian)" class="promo-banner-img">
+            </div>
+            <div class="promo-banner-slide">
+              <img src="/uploads/banner_slide_3.png" alt="TikTok Shop Star Rating Plans" class="promo-banner-img">
+            </div>
           </div>
-          <div class="pbc-right">
-            <div class="pbc-red-glow"></div>
-            <div class="pbc-text">
-              Paket <span class="text-pink">dukungan interaksi</span> untuk pengguna baru
-            </div>
-            <div class="pbc-bold-text">
-              Dapatkan <span class="text-cyan">1 juta</span> tayangan produk
-            </div>
+          <!-- Dots Indicator -->
+          <div class="promo-banner-dots" id="promo-banner-dots">
+            <span class="pbd-dot active" onclick="goToBannerSlide(0)"></span>
+            <span class="pbd-dot" onclick="goToBannerSlide(1)"></span>
+            <span class="pbd-dot" onclick="goToBannerSlide(2)"></span>
           </div>
         </div>
 
@@ -93,15 +91,15 @@
           <!-- Top Row: Black Cards (Label Top, Value Bottom) -->
           <div class="matrix-grid top-row">
             <div class="card card-dark">
-              <div class="card-label-top">Today's Orders Sold</div>
+              <div class="card-label-top">Today's Orders<br>Sold</div>
               <div class="card-num-bot" id="mat-orders-sold">1</div>
             </div>
             <div class="card card-dark">
-              <div class="card-label-top">Today's Total Sales</div>
+              <div class="card-label-top">Today's Total<br>Sales</div>
               <div class="card-num-bot" id="mat-total-sales">0.00</div>
             </div>
             <div class="card card-dark">
-              <div class="card-label-top">Today's profit forecast</div>
+              <div class="card-label-top">Today's profit<br>forecast</div>
               <div class="card-num-bot" id="mat-profit-forecast">0.00</div>
             </div>
           </div>
@@ -167,7 +165,7 @@
               </div>
               <div class="quick-text">Merchant Service</div>
             </div>
-            <div class="quick-item" onclick="showTab('my')">
+            <div class="quick-item" onclick="openShopSettings()">
               <div class="quick-icon-dark">
                 <i class="fa-solid fa-gear"></i>
               </div>
@@ -219,7 +217,7 @@
               <div class="pbc-sub-text">Cross E-commerce</div>
             </div>
           </div>
-          <div class="pbc-gear-icon" onclick="showTab('my')">
+          <div class="pbc-gear-icon" onclick="openShopSettings()">
             <i class="fa-solid fa-gear"></i>
           </div>
         </div>
@@ -404,40 +402,43 @@
 
       <!-- ================= TAB 4: ORDER ================= -->
       <section class="tab-view" id="tab-order">
-        <!-- Horizontally Scrollable Pipeline Filter Tabs (Exact Screenshot Match) -->
-        <div class="order-pipeline-tabs">
-          <div class="pipe-tab active" onclick="switchOrderPipeline('All orders')">
-            <span>All orders</span>
+        <!-- Sticky Header (Tabs + Search Bar) -->
+        <div class="order-sticky-header">
+          <!-- Horizontally Scrollable Pipeline Filter Tabs (Exact Screenshot Match) -->
+          <div class="order-pipeline-tabs">
+            <div class="pipe-tab active" onclick="switchOrderPipeline('All orders')">
+              <span>All orders</span>
+            </div>
+            <div class="pipe-tab" onclick="switchOrderPipeline('Waiting for Payment')">
+              <span>Waiting for Payment</span>
+            </div>
+            <div class="pipe-tab" onclick="switchOrderPipeline('Awaiting Pickup')">
+              <span>Awaiting Pickup</span>
+            </div>
+            <div class="pipe-tab" onclick="switchOrderPipeline('Waiting for Shipment')">
+              <span>Waiting for Shipment</span>
+            </div>
+            <div class="pipe-tab" onclick="switchOrderPipeline('Shipped')">
+              <span>Shipped</span>
+            </div>
+            <div class="pipe-tab" onclick="switchOrderPipeline('Received')">
+              <span>Received</span>
+            </div>
+            <div class="pipe-tab" onclick="switchOrderPipeline('Completed')">
+              <span>Completed</span>
+            </div>
+            <div class="pipe-tab" onclick="switchOrderPipeline('Cancelled')">
+              <span>Cancelled</span>
+            </div>
           </div>
-          <div class="pipe-tab" onclick="switchOrderPipeline('Waiting for Payment')">
-            <span>Waiting for Payment</span>
-          </div>
-          <div class="pipe-tab" onclick="switchOrderPipeline('Awaiting Pickup')">
-            <span>Awaiting Pickup</span>
-          </div>
-          <div class="pipe-tab" onclick="switchOrderPipeline('Waiting for Shipment')">
-            <span>Waiting for Shipment</span>
-          </div>
-          <div class="pipe-tab" onclick="switchOrderPipeline('Shipped')">
-            <span>Shipped</span>
-          </div>
-          <div class="pipe-tab" onclick="switchOrderPipeline('Received')">
-            <span>Received</span>
-          </div>
-          <div class="pipe-tab" onclick="switchOrderPipeline('Completed')">
-            <span>Completed</span>
-          </div>
-          <div class="pipe-tab" onclick="switchOrderPipeline('Cancelled')">
-            <span>Cancelled</span>
-          </div>
-        </div>
 
-        <!-- Search Input Bar -->
-        <div class="order-search-container">
-          <div class="order-search-box">
-            <i class="fa-solid fa-magnifying-glass search-icon"></i>
-            <input type="text" placeholder="Please enter search keywords" id="order-search-input"
-              onkeyup="filterOrderSearch(this.value)">
+          <!-- Search Input Bar -->
+          <div class="order-search-container">
+            <div class="order-search-box">
+              <i class="fa-solid fa-magnifying-glass search-icon"></i>
+              <input type="text" placeholder="Please enter search keywords" id="order-search-input"
+                onkeyup="filterOrderSearch(this.value)">
+            </div>
           </div>
         </div>
 
@@ -459,7 +460,7 @@
         </div>
 
         <!-- Floating Bottom Capsule Bar (Select All & Pickup All) -->
-        <div class="order-bottom-actions-float" id="order-bottom-actions-float">
+        <div class="order-bottom-actions-float" id="order-bottom-actions-float" style="display:none;">
           <button class="btn-select-all" onclick="toggleSelectAllOrders()">Select All</button>
           <button class="btn-pickup-all" onclick="pickupAllOrders()">Pickup All</button>
         </div>
@@ -488,30 +489,30 @@
         <!-- Order Status Bar (Overlaid White Card) -->
         <div class="my-order-status-card">
           <div class="mos-item" onclick="showTab('order'); switchOrderPipeline('Waiting for Payment');">
-            <div class="mos-icon"><i class="fa-regular fa-folder-open"></i></div>
+            <div class="mos-icon"><i class="fa-solid fa-arrow-right-to-bracket"></i></div>
             <span class="mos-label">To pay</span>
           </div>
           <div class="mos-item" onclick="showTab('order'); switchOrderPipeline('Awaiting Pickup');">
             <div class="mos-icon-badge-wrap">
-              <i class="fa-solid fa-box-archive"></i>
-              <span class="mos-badge">4</span>
+              <i class="fa-regular fa-calendar-plus"></i>
+              <span class="mos-badge" id="my-pickup-badge">5</span>
             </div>
             <span class="mos-label">To Pickup</span>
           </div>
           <div class="mos-item" onclick="showTab('order'); switchOrderPipeline('Shipped');">
             <div class="mos-icon-badge-wrap">
-              <i class="fa-solid fa-truck-fast"></i>
+              <i class="fa-solid fa-truck-moving"></i>
               <span class="mos-badge">13</span>
             </div>
             <span class="mos-label">Shipped</span>
           </div>
           <div class="mos-item" onclick="showTab('order'); switchOrderPipeline('Received');">
-            <div class="mos-icon"><i class="fa-solid fa-box"></i></div>
+            <div class="mos-icon"><i class="fa-solid fa-cube"></i></div>
             <span class="mos-label">Received</span>
           </div>
           <div class="mos-item" onclick="showTab('order'); switchOrderPipeline('Completed');">
             <div class="mos-icon-badge-wrap">
-              <i class="fa-regular fa-clipboard"></i>
+              <i class="fa-solid fa-clipboard-check"></i>
               <span class="mos-badge">36</span>
             </div>
             <span class="mos-label">Completed</span>
@@ -522,7 +523,7 @@
         <div class="my-wallet-section-card">
           <div class="mw-pending-row">
             <span class="mw-pending-lbl">Pending Amount:</span>
-            <span class="mw-pending-val text-pink" id="my-pending">$ 38017.34</span>
+            <span class="mw-pending-val" id="my-pending">$ 38017.34</span>
             <i class="fa-solid fa-rotate-right mw-refresh-icon" onclick="fetchUserData()"></i>
           </div>
 
@@ -547,7 +548,7 @@
           </div>
         </div>
 
-        <!-- Dark Banner Links (Loan Application & Yu'e Bao with custom wallpaper) -->
+        <!-- Dark Banner Links (Loan Application & Yu'e Bao) -->
         <div class="my-dark-banners">
           <div class="mdb-card" onclick="showUnavailable('Loan Application')">
             <div class="mdb-left">
@@ -565,23 +566,21 @@
           </div>
         </div>
 
-        <!-- Loudspeaker Announcement Ticker Bar (Smooth CSS Animated Marquee) -->
+        <!-- Loudspeaker Announcement Ticker Bar -->
         <div class="my-announcement-ticker-bar">
           <i class="fa-solid fa-volume-high ticker-speaker"></i>
           <div class="ticker-marquee-wrapper">
             <div class="ticker-marquee-content" id="my-notice-ticker">
-              Dear users, please pay attention to your payment. Late payments may negatively impact the store's credit
-              score and other aspects. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dear users, please pay attention
-              to your payment. Late payments may negatively impact the store's credit score and other aspects.
+              Dear users, please pay attention to your payment. Late payments may negatively impact the store's credit score and other aspects. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dear users, please pay attention to your payment. Late payments may negatively impact the store's credit score and other aspects.
             </div>
           </div>
         </div>
 
         <!-- First Menu Options Card -->
         <div class="my-menu-card-group">
-          <div class="mm-row" onclick="showUnavailable('Personal Information')">
+          <div class="mm-row" onclick="openPersonalInfo()">
             <div class="mm-left">
-              <i class="fa-regular fa-user mm-icon"></i>
+              <i class="fa-regular fa-circle-user mm-icon"></i>
               <span>Personal Information</span>
             </div>
             <i class="fa-solid fa-chevron-right mm-arrow"></i>
@@ -613,7 +612,7 @@
           </div>
           <div class="mm-row" onclick="openMerchantService()">
             <div class="mm-left">
-              <i class="fa-regular fa-circle-exclamation mm-icon"></i>
+              <i class="fa-solid fa-circle-exclamation mm-icon"></i>
               <span>Complaint Message</span>
             </div>
             <i class="fa-solid fa-chevron-right mm-arrow"></i>
@@ -628,37 +627,139 @@
         <div class="bottom-padding"></div>
       </section>
 
+      <!-- ================= DEDICATED SUB-PAGE: SETTINGS / SHOP SETTINGS (100% Screenshot Match) ================= -->
+      <section class="sub-view" id="sub-settings">
+        <div class="sub-header header-black">
+          <button class="nav-back text-white" onclick="closeSubView('sub-settings')">
+            <i class="fa-solid fa-chevron-left"></i> Go Back
+          </button>
+          <span class="sub-title text-white">Settings</span>
+          <span style="width: 32px;"></span>
+        </div>
+
+        <div class="settings-body">
+          <div class="settings-card-item" onclick="openPersonalInfo()">
+            <div class="settings-card-icon">
+              <i class="fa-solid fa-table-cells-large"></i>
+            </div>
+            <span class="settings-card-text">Basic Information</span>
+          </div>
+
+          <div class="settings-card-item" onclick="showToast('Home Banner settings')">
+            <div class="settings-card-icon">
+              <i class="fa-regular fa-image"></i>
+            </div>
+            <span class="settings-card-text">Home Banner</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= DEDICATED SUB-PAGE: PERSONAL INFORMATION (100% Screenshot Match) ================= -->
+      <section class="sub-view" id="sub-personal-info">
+        <div class="sub-header header-black">
+          <button class="nav-back text-white" onclick="closeSubView('sub-personal-info')">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+          <span class="sub-title">Personal Information</span>
+          <span style="width: 24px;"></span>
+        </div>
+
+        <div class="personal-info-body">
+          <div class="pi-card-group">
+            <!-- Row 1: Avatar -->
+            <div class="pi-row" onclick="showToast('Avatar is managed by store settings')">
+              <span class="pi-label">Avatar</span>
+              <div class="pi-right">
+                <img src="/uploads/amks_logo.png" alt="Avatar" class="pi-avatar-badge">
+                <i class="fa-solid fa-chevron-right pi-arrow"></i>
+              </div>
+            </div>
+
+            <!-- Row 2: Full Name -->
+            <div class="pi-row" onclick="showToast('Full Name is Verified')">
+              <span class="pi-label">Full Name</span>
+              <div class="pi-right">
+                <span class="pi-verified-badge">
+                  <i class="fa-solid fa-circle-check"></i>
+                  <span>Verified</span>
+                </span>
+                <i class="fa-solid fa-chevron-right pi-arrow"></i>
+              </div>
+            </div>
+
+            <!-- Row 3: Phone Verification -->
+            <div class="pi-row" onclick="showToast('Phone Number is Verified')">
+              <span class="pi-label">Phone Verification</span>
+              <div class="pi-right">
+                <span class="pi-verified-badge">
+                  <i class="fa-solid fa-circle-check"></i>
+                  <span>Verified</span>
+                </span>
+                <i class="fa-solid fa-chevron-right pi-arrow"></i>
+              </div>
+            </div>
+
+            <!-- Row 4: Email -->
+            <div class="pi-row" onclick="showToast('Email Address is Verified')">
+              <span class="pi-label">Email</span>
+              <div class="pi-right">
+                <span class="pi-verified-badge">
+                  <i class="fa-solid fa-circle-check"></i>
+                  <span>Verified</span>
+                </span>
+                <i class="fa-solid fa-chevron-right pi-arrow"></i>
+              </div>
+            </div>
+
+            <!-- Row 5: Change Login Password -->
+            <div class="pi-row" onclick="showToast('Login Password settings')">
+              <span class="pi-label">Change Login Password</span>
+              <div class="pi-right">
+                <i class="fa-solid fa-chevron-right pi-arrow"></i>
+              </div>
+            </div>
+
+            <!-- Row 6: Change Funds Password -->
+            <div class="pi-row" onclick="showToast('Funds Password settings')">
+              <span class="pi-label">Change Funds Password</span>
+              <div class="pi-right">
+                <i class="fa-solid fa-chevron-right pi-arrow"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- ================= DEDICATED SUB-PAGE: RECHARGE ================= -->
       <section class="sub-view" id="sub-recharge">
         <div class="sub-header">
-          <button class="nav-back" onclick="closeSubView('sub-recharge')"><i class="fa-solid fa-chevron-left"></i> Go
-            Back</button>
+          <button class="nav-back" onclick="closeSubView('sub-recharge')">
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
           <span class="sub-title">Recharge</span>
           <span class="sub-right"></span>
         </div>
 
         <div class="recharge-body">
-          <!-- Vector Banner (Matching Screenshot 3) -->
+          <!-- Vector Banner (Matching Screenshot) -->
           <div class="recharge-vector-card">
-            <img src="/assets/recharge-banner.png" alt="TikTok Recharge Vector" class="vector-img">
+            <img src="/uploads/recharge_banner.png" alt="TikTok Recharge Vector" class="vector-img">
           </div>
 
           <div class="recharge-section-label">Recharge Method</div>
 
-          <div class="recharge-option" onclick="selectRechargeMethod('USDT')">
+          <div class="recharge-option" onclick="openMerchantService()">
             <div class="ro-left">
-              <div class="ro-icon usdt-bg"><i class="fa-solid fa-t"></i></div>
+              <div class="ro-icon usdt-bg">₮</div>
               <span class="ro-text">USDT</span>
             </div>
-            <i class="fa-solid fa-chevron-right"></i>
           </div>
 
-          <div class="recharge-option" onclick="selectRechargeMethod('Bank Recharge')">
+          <div class="recharge-option" onclick="openMerchantService()">
             <div class="ro-left">
-              <div class="ro-icon bank-bg"><i class="fa-solid fa-headset"></i></div>
+              <div class="ro-icon bank-icon-clean"><i class="fa-solid fa-headphones-simple"></i></div>
               <span class="ro-text">Bank Recharge</span>
             </div>
-            <i class="fa-solid fa-chevron-right"></i>
           </div>
         </div>
       </section>
@@ -683,7 +784,7 @@
             </div>
           </div>
 
-          <!-- Dynamic Bank Card Fields (Shown when Bank Card is selected - Screenshot 4) -->
+          <!-- Dynamic Bank Card Fields (Shown when Bank Card is selected) -->
           <div id="bank-card-fields" style="display: none;">
             <div class="form-group">
               <label class="form-label">Full Name</label>
@@ -698,6 +799,19 @@
             <div class="form-group">
               <label class="form-label">Bank Account Number/IBAN</label>
               <input type="text" id="withdraw-iban" class="form-input" placeholder="Enter Bank Account Number/IBAN">
+            </div>
+          </div>
+
+          <!-- Dynamic Blockchain Fields (Shown when Blockchain is selected) -->
+          <div id="blockchain-fields" style="display: none;">
+            <div class="form-group">
+              <label class="form-label">Blockchain Network</label>
+              <input type="text" id="withdraw-blockchain-network" class="form-input" placeholder="Enter Blockchain Network">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Blockchain Address</label>
+              <input type="text" id="withdraw-blockchain-address" class="form-input" placeholder="Enter Blockchain Address">
             </div>
           </div>
 
@@ -792,88 +906,6 @@
         </div>
       </div>
 
-      <!-- ================= DEDICATED SUB-PAGE: ORDER DETAIL (100% Screenshot Match) ================= -->
-      <section class="sub-view" id="sub-order-detail">
-        <div class="sub-header header-black" style="display:flex; justify-content:space-between; align-items:center; background:#000000; padding:12px 16px; color:#ffffff;">
-          <button class="nav-back text-white" onclick="closeSubView('sub-order-detail')" style="background:none; border:none; color:#ffffff; font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:6px;">
-            <i class="fa-solid fa-chevron-left"></i> Go Back
-          </button>
-          <span style="font-size:16px; font-weight:700; color:#ffffff; margin-right:auto; margin-left:auto;">Order Detail</span>
-          <div style="width:50px;"></div>
-        </div>
-
-        <div class="order-detail-content" style="padding:14px; background:#f3f4f6; min-height:calc(100% - 50px);">
-          <!-- Top Product Card -->
-          <div class="od-product-card">
-            <img id="od-img" src="/uploads/powerstation.png" class="od-prod-thumb" alt="Product" onerror="this.src='/uploads/powerstation.png'">
-            <div class="od-prod-info">
-              <div class="od-prod-title" id="od-title">SAMSUNG Galaxy S22 Ultra Phone, Factory Unlocked Android Smartphone, 256GB, 8K...</div>
-              <div class="od-qty-price-row">
-                <span class="od-lbl-gray">Quantity <span class="od-val-dark" id="od-qty">x1</span></span>
-              </div>
-              <div class="od-qty-price-row" style="margin-top:2px;">
-                <span class="od-lbl-gray">Price <span class="od-val-dark" id="od-price">$ 860.69</span></span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Bottom Order & Logistics Card -->
-          <div class="od-info-card">
-            <div class="od-info-row">
-              <div style="display:flex; align-items:center; gap:6px;">
-                <span class="od-info-lbl">Order Number:</span>
-                <span class="od-info-val" id="od-order-no">2026082562300452535053</span>
-                <button class="od-copy-btn" onclick="copyOrderNumber()">Copy</button>
-              </div>
-            </div>
-            <div class="od-info-row">
-              <span class="od-info-lbl">Shipping Address:</span>
-              <span class="od-info-val" id="od-address">Šentrupert Tavcarjeva 62 Slovenia</span>
-            </div>
-            <div class="od-info-row">
-              <span class="od-info-lbl">Phone Number:</span>
-              <span class="od-info-val" id="od-phone">386****005</span>
-            </div>
-            <div class="od-info-row">
-              <span class="od-info-lbl">Order Time:</span>
-              <span class="od-info-val" id="od-time">2026-08-25 00:29:28</span>
-            </div>
-
-            <div class="od-earnings-row">
-              <span class="od-info-lbl">Total Earnings:</span>
-              <span class="od-earnings-val" id="od-earnings">$ 129.10</span>
-            </div>
-
-            <div class="od-payment-row">
-              <span class="od-payment-lbl">Total Payment</span>
-              <span class="od-payment-val" id="od-payment">$860.69</span>
-            </div>
-
-            <div class="od-shipping-section">
-              <div class="od-shipping-title">Shipping Progress</div>
-              <div class="od-tracking-title">Tracking Number:<span id="od-tracking-num" style="margin-left:2px; font-weight:700; color:#000000;"></span></div>
-              
-              <!-- When No Logistics (Awaiting Pickup) -->
-              <div class="od-no-logistics" id="od-no-logistics" style="display:block;">-No logistics information available-</div>
-
-              <!-- When Shipped / Delivered (100% Screenshot Match) -->
-              <div class="od-shipped-progress" id="od-shipped-progress" style="display:none;">
-                <div class="od-progress-row">
-                  <i class="fa-solid fa-circle-check od-progress-check"></i>
-                  <div class="od-progress-texts">
-                    <div class="od-progress-status">Shipping Status:User has signed and received the package.</div>
-                    <div class="od-progress-time">Execution Time:<span id="od-exec-time">2026-08-24 22:04:29</span></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div id="od-pickup-btn-wrap" style="margin-top:14px; display:none;">
-            <button class="btn-click-pickup" id="od-btn-pickup" style="width:100%; height:44px; font-size:14px; font-weight:700; border-radius:8px;" onclick="pickupCurrentDetailOrder()">Click to Pickup</button>
-          </div>
-        </div>
-      </section>
 
     </div> <!-- End App Content -->
 
@@ -906,6 +938,64 @@
         <span class="tab-label">My</span>
       </div>
     </nav>
+
+    <!-- ================= ORDER DETAIL SUB-PAGE (moved outside app-content) ================= -->
+    <section class="sub-view" id="sub-order-detail">
+      <div class="sub-header header-black">
+        <button class="nav-back text-white" onclick="closeSubView('sub-order-detail')">
+          <i class="fa-solid fa-chevron-left"></i> Go Back
+        </button>
+        <span class="sub-title text-white">Order Detail</span>
+        <span style="width: 32px;"></span>
+      </div>
+
+      <div class="od-content-wrapper">
+        <div class="od-product-card">
+          <img id="od-img" src="/uploads/powerstation.png" class="od-prod-thumb" alt="Product" onerror="this.src='/uploads/powerstation.png'">
+          <div class="od-prod-info">
+            <div class="od-prod-title" id="od-title">Product Title</div>
+            <div class="od-prod-meta">
+              <div class="od-qty-line">Quantity <span id="od-qty">x1</span></div>
+              <div class="od-price-line">Price <span id="od-price">$ 0.00</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="od-info-card">
+          <div class="od-row-item">
+            <span class="od-label">Order Number:</span>
+            <span class="od-value" id="od-order-no"></span>
+            <button class="od-copy-btn" onclick="copyOrderNumber()">Copy</button>
+          </div>
+          <div class="od-row-item">
+            <span class="od-label">Shipping Address:</span>
+            <span class="od-value" id="od-address">FREUNDSAM Aufeld 62 Austria</span>
+          </div>
+          <div class="od-row-item">
+            <span class="od-label">Phone Number:</span>
+            <span class="od-value" id="od-phone">430****796</span>
+          </div>
+          <div class="od-row-item">
+            <span class="od-label">Order Time:</span>
+            <span class="od-value" id="od-time"></span>
+          </div>
+          <div class="od-earnings-line">
+            <span class="od-label">Total Earnings:</span>
+            <span class="od-earnings-val" id="od-earnings"></span>
+          </div>
+          <div class="od-payment-line">
+            <span class="od-label">Total Payment</span>
+            <span class="od-payment-val" id="od-payment"></span>
+          </div>
+          <div class="od-shipping-section">
+            <div class="od-shipping-header">Shipping Progress</div>
+            <div class="od-tracking-header">Tracking Number:<span id="od-tracking-num" style="margin-left:4px; font-weight:700; color:#111827;"></span></div>
+            <div class="od-no-logistics" id="od-no-logistics">-No logistics information available-</div>
+            <div class="od-shipped-progress" id="od-shipped-progress" style="display:none;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- Global Toast Container -->
     <div class="toast-message" id="toast-message"></div>
