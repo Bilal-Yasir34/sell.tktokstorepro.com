@@ -1,0 +1,731 @@
+/* TikTok Shop Seller - Admin Control Panel Logic */
+
+let socket = null;
+if (typeof io !== 'undefined') {
+  try {
+    socket = io();
+  } catch (e) {
+    console.log('Socket.io connection optional:', e);
+  }
+}
+
+let currentUserData = null;
+let chatMessages = [];
+let transactions = [];
+let products = [];
+let orders = [];
+let pollingTimer = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  checkAdminAuth();
+
+  const f1 = document.getElementById('form-user-balances');
+  if (f1) f1.addEventListener('submit', window.handleSaveUser);
+  const f2 = document.getElementById('form-send-notif');
+  if (f2) f2.addEventListener('submit', window.handleAdminSendNotif);
+});
+
+// Authentication System
+function checkAdminAuth() {
+  const token = localStorage.getItem('tiktok_admin_token');
+  const overlay = document.getElementById('admin-auth-overlay');
+  
+  if (token === 'admin_auth_token_life_is_cool_4me') {
+    if (overlay) overlay.classList.add('unlocked');
+    initAdmin();
+  } else {
+    if (overlay) overlay.classList.remove('unlocked');
+    const passInput = document.getElementById('admin-pass-input');
+    if (passInput) passInput.focus();
+  }
+}
+
+window.handleAdminLoginSubmit = async function(e) {
+  if (e) e.preventDefault();
+  const passInput = document.getElementById('admin-pass-input');
+  const errorMsg = document.getElementById('auth-error-msg');
+  const btn = document.getElementById('admin-login-btn');
+  const pass = passInput ? passInput.value.trim() : '';
+
+  if (!pass) return;
+
+  if (errorMsg) errorMsg.style.display = 'none';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Authenticating...';
+  }
+
+  try {
+    const res = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pass })
+    });
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      localStorage.setItem('tiktok_admin_token', data.token);
+      const overlay = document.getElementById('admin-auth-overlay');
+      if (overlay) overlay.classList.add('unlocked');
+      if (passInput) passInput.value = '';
+      initAdmin();
+    } else {
+      if (errorMsg) {
+        errorMsg.textContent = data.error || 'Incorrect master password. Access denied.';
+        errorMsg.style.display = 'block';
+      }
+      if (passInput) {
+        passInput.value = '';
+        passInput.focus();
+      }
+    }
+  } catch (err) {
+    if (errorMsg) {
+      errorMsg.textContent = 'Server connection error. Please try again.';
+      errorMsg.style.display = 'block';
+    }
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Authenticate & Unlock';
+    }
+  }
+};
+
+window.toggleAuthPassVisibility = function() {
+  const input = document.getElementById('admin-pass-input');
+  const icon = document.getElementById('toggle-pass-icon');
+  if (!input || !icon) return;
+
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.classList.remove('fa-eye');
+    icon.classList.add('fa-eye-slash');
+  } else {
+    input.type = 'password';
+    icon.classList.remove('fa-eye-slash');
+    icon.classList.add('fa-eye');
+  }
+};
+
+window.handleAdminLogout = function() {
+  localStorage.removeItem('tiktok_admin_token');
+  const overlay = document.getElementById('admin-auth-overlay');
+  if (overlay) overlay.classList.remove('unlocked');
+  if (pollingTimer) clearInterval(pollingTimer);
+  const passInput = document.getElementById('admin-pass-input');
+  if (passInput) {
+    passInput.value = '';
+    passInput.focus();
+  }
+};
+
+// Admin Main Initialization
+async function initAdmin() {
+  setupSocket();
+  await loadUserData();
+  await loadTransactions();
+  await loadProducts();
+  await loadOrders();
+  await loadChatMessages();
+  setupChat();
+  startAdminPolling();
+}
+
+function setupSocket() {
+  if (!socket) return;
+  
+  try {
+    socket.emit('join_chat');
+
+    socket.on('chat_history', (msgs) => {
+      chatMessages = msgs || [];
+      renderAdminChat();
+    });
+
+    socket.on('receive_message', (msg) => {
+      if (!chatMessages.some(m => m.id === msg.id)) {
+        chatMessages.push(msg);
+        renderAdminChat();
+      }
+    });
+
+    socket.on('messages_cleared', () => {
+      chatMessages = [];
+      const flow = document.getElementById('admin-messages-flow');
+      if (flow) flow.innerHTML = '';
+    });
+  } catch (e) {
+    console.log('Socket setup caught:', e);
+  }
+}
+
+function startAdminPolling() {
+  if (pollingTimer) clearInterval(pollingTimer);
+  pollingTimer = setInterval(async () => {
+    await loadChatMessages(false);
+    await loadTransactions(false);
+    await loadOrders(false);
+  }, 2500);
+}
+
+// Load User & Store Metrics
+async function loadUserData() {
+  try {
+    const res = await fetch('/api/user');
+    const json = await res.json();
+    if (json.success) {
+      currentUserData = json.data;
+      populateUserForm(currentUserData);
+    }
+  } catch (err) {
+    console.error('Admin load user error:', err);
+  }
+}
+
+function populateUserForm(u) {
+  if (!u) return;
+  const setV = (id, v) => {
+    const el = document.getElementById(id);
+    if (el) el.value = (v !== undefined && v !== null) ? v : '';
+  };
+  setV('adm-u-name', u.name);
+  setV('adm-u-email', u.email);
+  setV('adm-u-balance', u.balance);
+  setV('adm-u-pending', u.pending_balance);
+  setV('adm-u-income', u.total_income);
+  setV('adm-u-credit', u.credit_score);
+  setV('adm-u-orders', u.today_orders);
+  setV('adm-u-sales', u.today_sales);
+  setV('adm-u-profit', u.today_profit);
+  setV('adm-u-rating-rate', u.rating_rate);
+  setV('adm-u-followers', u.followers);
+  setV('adm-u-visitors-today', u.visitors_today);
+  setV('adm-u-visitors-7days', u.visitors_7days);
+  setV('adm-u-visitors-30days', u.visitors_30days);
+}
+
+window.handleSaveUser = async function(e) {
+  if (e) e.preventDefault();
+  const getVal = (id, fallback) => {
+    const el = document.getElementById(id);
+    return el ? el.value : fallback;
+  };
+
+  const update = {
+    name: getVal('adm-u-name', 'AMKS'),
+    email: getVal('adm-u-email', 'amks.pk@hotmail.com'),
+    balance: parseFloat(getVal('adm-u-balance', 0)) || 0,
+    pending_balance: parseFloat(getVal('adm-u-pending', 0)) || 0,
+    total_income: parseFloat(getVal('adm-u-income', 0)) || 0,
+    credit_score: parseInt(getVal('adm-u-credit', 100)) || 100,
+    today_orders: parseInt(getVal('adm-u-orders', 0)) || 0,
+    today_sales: parseFloat(getVal('adm-u-sales', 0)) || 0,
+    today_profit: parseFloat(getVal('adm-u-profit', 0)) || 0,
+    rating_rate: parseFloat(getVal('adm-u-rating-rate', 96)) || 96,
+    followers: parseInt(getVal('adm-u-followers', 55)) || 55,
+    visitors_today: parseInt(getVal('adm-u-visitors-today', 1350)) || 1350,
+    visitors_7days: parseInt(getVal('adm-u-visitors-7days', 9840)) || 9840,
+    visitors_30days: parseInt(getVal('adm-u-visitors-30days', 42100)) || 42100
+  };
+
+  try {
+    const res = await fetch('/api/user', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(update)
+    });
+    const json = await res.json();
+    if (json.success) {
+      currentUserData = json.data;
+      alert('Merchant account, rating rate & metrics updated successfully! Synchronized across site in real time.');
+    } else {
+      alert('Failed to update balances: ' + (json.error || 'Server error'));
+    }
+  } catch (err) {
+    alert('Failed to update user: ' + err.message);
+  }
+};
+
+window.handleAdminSendNotif = async function(e) {
+  if (e) e.preventDefault();
+  const msg = document.getElementById('adm-notif-msg').value.trim();
+  const type = document.getElementById('adm-notif-type').value.trim();
+  const sender = document.getElementById('adm-notif-sender').value.trim();
+
+  if (!msg) {
+    alert('Please enter a notification message');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/notifications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: msg, type, sender })
+    });
+    const json = await res.json();
+    if (json.success) {
+      alert('System notification sent to merchant successfully!');
+      document.getElementById('adm-notif-msg').value = '';
+    } else {
+      alert('Failed to send notification: ' + (json.error || 'Server error'));
+    }
+  } catch (err) {
+    alert('Failed to send notification: ' + err.message);
+  }
+};
+
+// Transactions Management
+async function loadTransactions(render = true) {
+  try {
+    const res = await fetch('/api/transactions');
+    const json = await res.json();
+    if (json.success) {
+      transactions = json.data || [];
+      if (render) renderTransactionsTable();
+    }
+  } catch (err) {
+    console.error('Error loading transactions:', err);
+  }
+}
+
+function renderTransactionsTable() {
+  const tbody = document.getElementById('adm-tx-tbody');
+  if (!tbody) return;
+
+  if (transactions.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#6b7280;">No transactions recorded.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = transactions.map(t => {
+    const badgeClass = t.status === 'approved' ? 'badge-success' : (t.status === 'rejected' ? 'badge-danger' : 'badge-warning');
+    const isPending = t.status === 'pending';
+
+    return `
+      <tr>
+        <td>#TX-${t.id}</td>
+        <td><strong style="text-transform:capitalize;">${t.type}</strong></td>
+        <td>${t.method || 'Standard'}</td>
+        <td style="font-weight:700; color:${t.type === 'recharge' ? '#10b981' : '#ef4444'};">
+          ${t.type === 'recharge' ? '+' : '-'}$${(parseFloat(t.amount) || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+        </td>
+        <td><span class="badge ${badgeClass}">${t.status}</span></td>
+        <td>${t.created_at || 'Just now'}</td>
+        <td>${t.tx_hash || t.iban || t.full_name || '-'}</td>
+        <td>
+          ${isPending ? `
+            <div class="action-btn-group">
+              <button class="btn-action btn-approve" onclick="updateTxStatus(${t.id}, 'approved')"><i class="fa-solid fa-check"></i> Approve</button>
+              <button class="btn-action btn-reject" onclick="updateTxStatus(${t.id}, 'rejected')"><i class="fa-solid fa-xmark"></i> Reject</button>
+            </div>
+          ` : `<span style="color:#6b7280; font-size:12px;">Completed</span>`}
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+window.updateTxStatus = async function(id, status) {
+  if (!confirm(`Are you sure you want to mark this transaction as ${status}?`)) return;
+
+  try {
+    const res = await fetch(`/api/transactions/${id}/status`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    });
+    const json = await res.json();
+    if (json.success) {
+      await loadTransactions();
+      await loadUserData();
+      alert(`Transaction #${id} marked as ${status}!`);
+    } else {
+      alert('Error updating status: ' + (json.error || 'Server error'));
+    }
+  } catch (err) {
+    alert('Failed to update transaction status');
+  }
+};
+
+// Products Management
+async function loadProducts() {
+  try {
+    const res = await fetch('/api/products');
+    const json = await res.json();
+    if (json.success) {
+      products = json.data || [];
+      renderProductsTable();
+    }
+  } catch (err) {
+    console.error('Error loading products:', err);
+  }
+}
+
+function renderProductsTable() {
+  const tbody = document.getElementById('adm-prod-tbody');
+  if (!tbody) return;
+
+  tbody.innerHTML = products.map(p => `
+    <tr>
+      <td>${p.id}</td>
+      <td>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <img src="${p.image_url}" style="width:36px; height:36px; object-fit:cover; border-radius:4px;">
+          <span style="max-width:250px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.title}</span>
+        </div>
+      </td>
+      <td>$${parseFloat(p.price).toFixed(2)}</td>
+      <td>${p.stock}</td>
+      <td>${p.sales_count}</td>
+      <td>${p.click_count}</td>
+      <td>${p.is_top10 ? '<span class="badge badge-success">TOP 10</span>' : '<span class="badge badge-warning">Standard</span>'}</td>
+      <td>
+        <button class="btn-action btn-approve" onclick="editProductPrompt(${p.id})"><i class="fa-solid fa-edit"></i> Edit</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+window.editProductPrompt = async function(id) {
+  const prod = products.find(p => p.id === id);
+  if (!prod) return;
+
+  const newPrice = prompt(`Edit Price for "${prod.title.substring(0, 30)}..."`, prod.price);
+  if (newPrice === null) return;
+  const newStock = prompt(`Edit Stock:`, prod.stock);
+  if (newStock === null) return;
+
+  try {
+    const res = await fetch(`/api/products/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        price: parseFloat(newPrice) || prod.price,
+        stock: parseInt(newStock) || prod.stock
+      })
+    });
+    const json = await res.json();
+    if (json.success) {
+      await loadProducts();
+      alert('Product updated successfully!');
+    }
+  } catch (err) {
+    alert('Error updating product');
+  }
+};
+
+// Orders Management
+async function loadOrders(render = true) {
+  try {
+    const res = await fetch('/api/orders?status=All');
+    const json = await res.json();
+    if (json.success) {
+      orders = json.data || [];
+      if (render) renderOrdersTable();
+    }
+  } catch (err) {
+    console.error('Error loading orders:', err);
+  }
+}
+
+function renderOrdersTable() {
+  const tbody = document.getElementById('adm-order-tbody');
+  if (!tbody) return;
+
+  if (orders.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#6b7280; padding:20px;">No orders found in pipeline. Click "Add Product Order to Awaiting Pickup" to dispatch a new order.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = orders.map(o => {
+    const isPickup = (o.status === 'To Pickup' || o.status === 'Awaiting Pickup');
+    return `
+      <tr>
+        <td><strong>${o.order_no}</strong></td>
+        <td>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <img src="${o.product_image}" style="width:34px; height:34px; border-radius:6px; object-fit:cover; border:1px solid #e5e7eb;">
+            <span style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600;">${o.product_title}</span>
+          </div>
+        </td>
+        <td>$${parseFloat(o.price).toFixed(2)}</td>
+        <td><strong>${o.quantity}</strong></td>
+        <td style="font-weight:700;">$${parseFloat(o.total_amount).toFixed(2)}</td>
+        <td style="color:#10b981; font-weight:700;">+$${parseFloat(o.profit).toFixed(2)}</td>
+        <td>
+          <select onchange="handleOrderStatusChange(${o.id}, this.value)" class="adm-input" style="padding:5px 8px; font-size:12px; width:auto; font-weight:600; background-color:${isPickup ? '#eff6ff' : '#f9fafb'}; color:${isPickup ? '#1d4ed8' : '#374151'};">
+            <option value="To Pickup" ${isPickup ? 'selected' : ''}>Awaiting Pickup</option>
+            <option value="Waiting for Shipment" ${o.status === 'Waiting for Shipment' ? 'selected' : ''}>Waiting for Shipment</option>
+            <option value="Shipped" ${o.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+            <option value="Received" ${o.status === 'Received' ? 'selected' : ''}>Received</option>
+            <option value="Completed" ${o.status === 'Completed' ? 'selected' : ''}>Completed</option>
+            <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+          </select>
+        </td>
+        <td>
+          <button class="btn-action btn-reject" onclick="handleDeleteOrder(${o.id})" title="Delete order from pipeline"><i class="fa-solid fa-trash"></i> Delete</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+window.handleOrderStatusChange = async function(id, status) {
+  try {
+    const res = await fetch(`/api/orders/${id}/status`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    });
+    const data = await res.json();
+    if (data.success) {
+      await loadOrders();
+    }
+  } catch (err) {
+    alert('Error updating order status: ' + err.message);
+  }
+};
+
+window.handleDeleteOrder = async function(id) {
+  if (!confirm('Are you sure you want to permanently delete this order from the pipeline?')) return;
+  try {
+    const res = await fetch(`/api/orders/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (data.success) {
+      await loadOrders();
+      alert('Order deleted successfully!');
+    } else {
+      alert('Failed to delete order');
+    }
+  } catch (err) {
+    alert('Error deleting order: ' + err.message);
+  }
+};
+
+window.openAddOrderModal = function() {
+  const modal = document.getElementById('adm-add-order-modal');
+  const sel = document.getElementById('order-product-select');
+  if (sel && products && products.length > 0) {
+    sel.innerHTML = products.map((p, idx) => `
+      <option value="${p.id}" ${idx === 0 ? 'selected' : ''}>${p.title.substring(0, 45)}... ($${p.price.toFixed(2)})</option>
+    `).join('') + `<option value="custom">+ Custom / Other Product</option>`;
+    handleOrderProductSelect(products[0].id);
+  } else if (sel) {
+    sel.innerHTML = `<option value="custom">+ Custom / Other Product</option>`;
+    handleOrderProductSelect('custom');
+  }
+  if (modal) modal.classList.add('active');
+};
+
+window.closeAddOrderModal = function() {
+  const modal = document.getElementById('adm-add-order-modal');
+  if (modal) modal.classList.remove('active');
+};
+
+window.uploadOrderProductImage = async function(input) {
+  if (!input.files || !input.files[0]) return;
+  const formData = new FormData();
+  formData.append('image', input.files[0]);
+  try {
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData
+    });
+    const json = await res.json();
+    if (json.success && json.imageUrl) {
+      document.getElementById('order-inp-image').value = json.imageUrl;
+      alert('Product image uploaded successfully!');
+    } else {
+      alert('Upload failed: ' + (json.error || 'Unknown error'));
+    }
+  } catch (err) {
+    alert('Error uploading image: ' + err.message);
+  }
+};
+
+window.handleOrderProductSelect = function(productId) {
+  if (productId === 'custom') {
+    document.getElementById('order-inp-title').value = '';
+    document.getElementById('order-inp-image').value = '/uploads/powerstation.png';
+    document.getElementById('order-inp-price').value = '100.00';
+    document.getElementById('order-inp-profit').value = '15.00';
+    return;
+  }
+  const p = products.find(x => x.id == productId);
+  if (p) {
+    document.getElementById('order-inp-title').value = p.title;
+    document.getElementById('order-inp-image').value = p.image_url || '/uploads/powerstation.png';
+    document.getElementById('order-inp-price').value = p.price.toFixed(2);
+    const profit = (p.price * 0.15).toFixed(2);
+    document.getElementById('order-inp-profit').value = profit;
+  }
+};
+
+window.handleCreateOrder = async function(e) {
+  if (e) e.preventDefault();
+  const title = document.getElementById('order-inp-title').value.trim();
+  const image = document.getElementById('order-inp-image').value.trim();
+  const price = parseFloat(document.getElementById('order-inp-price').value) || 0;
+  const qty = parseInt(document.getElementById('order-inp-qty').value) || 1;
+  const profit = parseFloat(document.getElementById('order-inp-profit').value) || (price * qty * 0.15);
+  const status = document.getElementById('order-inp-status').value || 'To Pickup';
+
+  if (!title || price <= 0) {
+    alert('Please enter a valid product title and price');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        product_title: title,
+        product_image: image,
+        price: price,
+        quantity: qty,
+        total_amount: price * qty,
+        profit: profit,
+        status: status
+      })
+    });
+    const data = await res.json();
+    if (data.success) {
+      await loadOrders();
+      closeAddOrderModal();
+      alert('New product order dispatched to merchant pipeline successfully!');
+    } else {
+      alert('Failed to create order: ' + (data.error || 'Server error'));
+    }
+  } catch (err) {
+    alert('Error creating order: ' + err.message);
+  }
+};
+
+// Admin Live Chat
+async function loadChatMessages(render = true) {
+  try {
+    const res = await fetch('/api/messages');
+    const json = await res.json();
+    if (json.success) {
+      const prevLen = chatMessages.length;
+      chatMessages = json.data || [];
+      if (render || chatMessages.length !== prevLen) {
+        renderAdminChat();
+      }
+    }
+  } catch (err) {
+    console.error('Error fetching chat messages:', err);
+  }
+}
+
+function setupChat() {
+  const btn = document.getElementById('admin-chat-send-btn');
+  const input = document.getElementById('admin-chat-input');
+  if (!btn || !input) return;
+
+  btn.addEventListener('click', async () => {
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+
+    try {
+      const res = await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sender: 'admin', message: text })
+      });
+      const data = await res.json();
+      if (data.success && data.data) {
+        if (!chatMessages.some(m => m.id === data.data.id)) {
+          chatMessages.push(data.data);
+          renderAdminChat();
+        }
+      }
+    } catch (err) {
+      console.error('Error sending message:', err);
+    }
+  });
+
+  input.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') btn.click();
+  });
+}
+
+function renderAdminChat() {
+  const flow = document.getElementById('admin-messages-flow');
+  if (!flow) return;
+
+  flow.innerHTML = chatMessages.map(m => `
+    <div class="adm-msg ${m.sender}">
+      <div>${m.message ? m.message.replace(/\n/g, '<br>') : ''}</div>
+      ${m.image_url ? `<img src="${m.image_url}" style="max-width:200px; border-radius:8px; margin-top:6px;">` : ''}
+    </div>
+  `).join('');
+
+  flow.scrollTop = flow.scrollHeight;
+}
+
+window.sendPromoBanner = async function() {
+  const promo = `✨ Exclusive USDT Top-Up Rewards ✨\n\n💎 Top up 1,000 USDT → Receive $250 bonus\n💎 Top up 5,000 USDT → Receive $1,800 bonus\n💎 Top up 10,000 USDT → Receive $3,500 bonus\n💎 Top up 30,000 USDT → Receive $12,000 bonus\n💎 Top up 50,000 USDT → Receive $20,000 bonus\n\n🔥 Top up now and enjoy generous rewards to boost your store!\n\nIf you have any questions, please don't hesitate to contact our online customer service—we're here to help! 🙌`;
+  
+  try {
+    const res = await fetch('/api/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sender: 'admin', message: promo })
+    });
+    const data = await res.json();
+    if (data.success && data.data) {
+      if (!chatMessages.some(m => m.id === data.data.id)) {
+        chatMessages.push(data.data);
+        renderAdminChat();
+      }
+    }
+  } catch (e) {
+    console.error('Promo send error:', e);
+  }
+};
+
+window.handleAdminClearMessages = async function() {
+  if (!confirm('Are you sure you want to clear all chat messages?')) return;
+  try {
+    const res = await fetch('/api/messages', { method: 'DELETE' });
+    const json = await res.json();
+    if (json.success) {
+      chatMessages = [];
+      const flow = document.getElementById('admin-messages-flow');
+      if (flow) flow.innerHTML = '';
+      alert('All chat messages deleted successfully!');
+    } else {
+      alert('Failed to clear messages: ' + (json.error || 'Server error'));
+    }
+  } catch (err) {
+    alert('Failed to clear messages: ' + err.message);
+  }
+};
+
+// Admin Tab Navigation
+window.switchAdminTab = function(tabId) {
+  document.querySelectorAll('.sidebar-menu .nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+
+  const titles = {
+    chat: 'Merchant Live Support Workspace',
+    wallet: 'Merchant Account & Store Data Modifier',
+    transactions: 'Recharge & Withdrawal Approvals Center',
+    products: 'Product Catalog & TOP10 Best Sellers Manager',
+    orders: 'Order Pipeline & Dispatch Manager'
+  };
+
+  const titleEl = document.getElementById('admin-page-title');
+  if (titleEl) titleEl.textContent = titles[tabId] || 'Admin Workspace';
+  
+  if (event && event.currentTarget) {
+    event.currentTarget.classList.add('active');
+  }
+  const tabEl = document.getElementById(`adm-tab-${tabId}`);
+  if (tabEl) tabEl.classList.add('active');
+};

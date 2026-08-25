@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>TikTok Shop Seller - Admin Control Panel</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/favicon.png">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="/socket.io/socket.io.js"></script>
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+
+  <!-- Master Password Protection Modal -->
+  <div id="admin-auth-overlay" class="admin-auth-overlay">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <i class="fa-brands fa-tiktok text-pink"></i>
+        <span>TikTok ADMIN</span>
+      </div>
+      <h3 class="auth-title">Administrator Access</h3>
+      <p class="auth-subtitle">Please enter your master password to access the control panel.</p>
+      
+      <form id="admin-login-form" onsubmit="handleAdminLoginSubmit(event)">
+        <div class="auth-input-group">
+          <i class="fa-solid fa-lock auth-icon"></i>
+          <input type="password" id="admin-pass-input" class="auth-input" placeholder="Enter Admin Password..." required autocomplete="current-password">
+          <button type="button" class="auth-toggle-pass" onclick="toggleAuthPassVisibility()"><i class="fa-regular fa-eye" id="toggle-pass-icon"></i></button>
+        </div>
+        <div id="auth-error-msg" class="auth-error-msg" style="display:none;"></div>
+        <button type="submit" class="auth-submit-btn" id="admin-login-btn">
+          <i class="fa-solid fa-right-to-bracket"></i> Authenticate & Unlock
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="admin-wrapper">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-brand">
+        <i class="fa-brands fa-tiktok text-pink"></i>
+        <span>TikTok ADMIN</span>
+      </div>
+
+      <nav class="sidebar-menu">
+        <button class="nav-btn active" onclick="switchAdminTab('chat')">
+          <i class="fa-solid fa-comments"></i> Merchant Live Chat
+        </button>
+        <button class="nav-btn" onclick="switchAdminTab('wallet')">
+          <i class="fa-solid fa-wallet"></i> Wallet & Store Data
+        </button>
+        <button class="nav-btn" onclick="switchAdminTab('transactions')">
+          <i class="fa-solid fa-file-invoice-dollar"></i> Transaction Approvals
+        </button>
+        <button class="nav-btn" onclick="switchAdminTab('products')">
+          <i class="fa-solid fa-box"></i> Product Catalog
+        </button>
+        <button class="nav-btn" onclick="switchAdminTab('orders')">
+          <i class="fa-solid fa-clipboard-check"></i> Order Management
+        </button>
+      </nav>
+
+      <div class="sidebar-footer" style="display:flex; flex-direction:column; gap:8px;">
+        <a href="/" target="_blank" class="btn-view-app"><i class="fa-solid fa-mobile-screen"></i> Open Mobile App View</a>
+        <button onclick="handleAdminLogout()" class="btn-view-app" style="background:#374151; border:none; cursor:pointer; width:100%;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Lock Admin Panel</button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+      
+      <!-- Top Header -->
+      <header class="admin-header">
+        <div class="header-title" id="admin-page-title">Merchant Live Support Workspace</div>
+        <div class="admin-user-profile">
+          <span class="status-indicator"></span>
+          <span class="admin-name">Admin Workspace</span>
+        </div>
+      </header>
+
+      <!-- ================= TAB 1: LIVE CHAT ================= -->
+      <section class="admin-tab active" id="adm-tab-chat">
+        <div class="chat-workspace">
+          <!-- Session List Sidebar -->
+          <div class="chat-sessions">
+            <div class="sessions-header">Active Merchant Chats</div>
+            <div class="session-item active">
+              <div class="session-avatar"><i class="fa-solid fa-user"></i></div>
+              <div class="session-info">
+                <div class="session-name">AMKS Merchant</div>
+                <div class="session-sub">amks.pk@hotmail.com</div>
+              </div>
+              <span class="online-dot"></span>
+            </div>
+          </div>
+
+          <!-- Active Chat Window -->
+          <div class="chat-desk">
+            <div class="desk-header">
+              <div>
+                <strong style="font-size:15px;">AMKS Merchant Chat Session</strong>
+                <div style="font-size:12px; color:#6b7280;">Email: amks.pk@hotmail.com | Level: V0</div>
+              </div>
+              <div style="display:flex; gap:8px;">
+                <button class="btn-quick-promo" onclick="sendPromoBanner()"><i class="fa-solid fa-bullhorn"></i> Send Top-Up Rewards Banner</button>
+                <button class="btn-quick-promo" style="background:#ef4444; color:#ffffff;" onclick="handleAdminClearMessages()"><i class="fa-solid fa-trash-can"></i> Clear All Messages</button>
+              </div>
+            </div>
+
+            <div class="desk-messages" id="admin-messages-flow">
+              <!-- Dynamic Messages -->
+            </div>
+
+            <div class="desk-input-bar">
+              <input type="text" id="admin-chat-input" placeholder="Type official response to merchant..." autocomplete="off">
+              <button class="btn-send-admin" id="admin-chat-send-btn"><i class="fa-solid fa-paper-plane"></i> Send Reply</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 2: WALLET & STORE DATA ================= -->
+      <section class="admin-tab" id="adm-tab-wallet">
+        <div class="panel-card">
+          <div class="card-title">Modify Merchant Account Balances</div>
+          
+          <form id="form-user-balances" onsubmit="handleSaveUser(event)">
+            <div class="form-grid">
+              <div class="fg">
+                <label>Merchant Name</label>
+                <input type="text" id="adm-u-name" class="adm-input" required>
+              </div>
+              <div class="fg">
+                <label>Email Address</label>
+                <input type="email" id="adm-u-email" class="adm-input" required>
+              </div>
+              <div class="fg">
+                <label>Available Balance ($)</label>
+                <input type="number" step="0.01" id="adm-u-balance" class="adm-input" required>
+              </div>
+              <div class="fg">
+                <label>Pending Balance ($)</label>
+                <input type="number" step="0.01" id="adm-u-pending" class="adm-input" required>
+              </div>
+              <div class="fg">
+                <label>Total Income ($)</label>
+                <input type="number" step="0.01" id="adm-u-income" class="adm-input" required>
+              </div>
+              <div class="fg">
+                <label>Credit Score</label>
+                <input type="number" id="adm-u-credit" class="adm-input" required>
+              </div>
+              <div class="fg">
+                <label>Today's Orders Sold</label>
+                <input type="number" id="adm-u-orders" class="adm-input" required>
+              </div>
+              <div class="fg">
+                <label>Today's Total Sales ($)</label>
+                <input type="number" step="0.01" id="adm-u-sales" class="adm-input" required>
+              </div>
+              <div class="fg">
+                <label>Today's Profit Forecast ($)</label>
+                <input type="number" step="0.01" id="adm-u-profit" class="adm-input" required>
+              </div>
+              <div class="fg">
+                <label>Rating Rate (%)</label>
+                <input type="number" step="0.01" id="adm-u-rating-rate" class="adm-input" placeholder="e.g. 96.00 or 99.80" required>
+              </div>
+              <div class="fg">
+                <label>Shop Followers</label>
+                <input type="number" id="adm-u-followers" class="adm-input" required>
+              </div>
+              <div class="fg">
+                <label>Today's Visitors</label>
+                <input type="number" id="adm-u-visitors-today" class="adm-input" required>
+              </div>
+              <div class="fg">
+                <label>Last 7 Days Visitors</label>
+                <input type="number" id="adm-u-visitors-7days" class="adm-input" required>
+              </div>
+              <div class="fg">
+                <label>Last 30 Days Visitors</label>
+                <input type="number" id="adm-u-visitors-30days" class="adm-input" required>
+              </div>
+            </div>
+
+            <div style="margin-top:16px;">
+              <button type="submit" class="btn-primary"><i class="fa-solid fa-save"></i> Save Account Updates</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="panel-card" style="margin-top:20px;">
+          <div class="card-title"><i class="fa-solid fa-bell"></i> Send System Notification to Merchant</div>
+          <form id="form-send-notif" onsubmit="handleAdminSendNotif(event)">
+            <div class="form-grid">
+              <div class="fg">
+                <label>Notification Message</label>
+                <input type="text" id="adm-notif-msg" class="adm-input" placeholder="e.g. Withdrawal review notification" required>
+              </div>
+              <div class="fg">
+                <label>Type</label>
+                <input type="text" id="adm-notif-type" class="adm-input" value="System Message" required>
+              </div>
+              <div class="fg">
+                <label>Sender</label>
+                <input type="text" id="adm-notif-sender" class="adm-input" value="System" required>
+              </div>
+            </div>
+            <div style="margin-top:16px;">
+              <button type="submit" class="btn-primary" style="background:#0d9488;"><i class="fa-solid fa-paper-plane"></i> Send System Notification</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- ================= TAB 3: TRANSACTION APPROVALS ================= -->
+      <section class="admin-tab" id="adm-tab-transactions">
+        <div class="panel-card">
+          <div class="card-title">Pending & Past Transactions</div>
+          
+          <table class="adm-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Method</th>
+                <th>Amount</th>
+                <th>Details</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adm-tx-tbody">
+              <!-- Dynamic Rows -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================= TAB 4: PRODUCT CATALOG ================= -->
+      <section class="admin-tab" id="adm-tab-products">
+        <div class="panel-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <div class="card-title" style="margin:0;">Product Catalog Management</div>
+            <button class="btn-primary" onclick="openAddProductModal()"><i class="fa-solid fa-plus"></i> Add New Product</button>
+          </div>
+
+          <table class="adm-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Thumbnail</th>
+                <th>Product Title</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Sales Count</th>
+                <th>Est. Profit</th>
+                <th>TOP10</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adm-prod-tbody">
+              <!-- Dynamic Products -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================= TAB 5: ORDER MANAGEMENT ================= -->
+      <section class="admin-tab" id="adm-tab-orders">
+        <div class="panel-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+            <div class="card-title" style="margin:0;">Order Pipeline Management</div>
+            <button class="btn-primary" onclick="openAddOrderModal()"><i class="fa-solid fa-plus"></i> Add Product Order to Awaiting Pickup</button>
+          </div>
+          
+          <table class="adm-table">
+            <thead>
+              <tr>
+                <th>Order No</th>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Qty</th>
+                <th>Total</th>
+                <th>Profit</th>
+                <th>Pipeline Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adm-order-tbody">
+              <!-- Dynamic Orders -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Add Order to Pipeline Modal -->
+  <div id="adm-add-order-modal" class="modal-backdrop" onclick="closeAddOrderModal()">
+    <div class="modal-card" style="max-width:480px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title"><i class="fa-solid fa-cart-plus text-pink"></i> Add Product Order to Pipeline</div>
+        <span class="modal-close" onclick="closeAddOrderModal()">&times;</span>
+      </div>
+      <form id="form-create-order" onsubmit="handleCreateOrder(event)">
+        <div class="form-grid" style="grid-template-columns: 1fr; gap:12px;">
+          <div class="fg">
+            <label>Select Product from Catalog</label>
+            <select id="order-product-select" class="adm-input" onchange="handleOrderProductSelect(this.value)">
+              <!-- Dynamic options -->
+            </select>
+          </div>
+          <div class="fg">
+            <label>Product Title</label>
+            <input type="text" id="order-inp-title" class="adm-input" required placeholder="e.g. Foursun 1500W Portable Power Station">
+          </div>
+          <div class="fg">
+            <label>Product Image (URL or Upload Image)</label>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <input type="text" id="order-inp-image" class="adm-input" required value="/uploads/powerstation.png" style="flex:1;">
+              <input type="file" id="order-inp-image-file" style="display:none;" accept="image/*" onchange="uploadOrderProductImage(this)">
+              <button type="button" class="btn-action btn-approve" onclick="document.getElementById('order-inp-image-file').click()" style="padding:7px 12px; font-size:12px; white-space:nowrap;"><i class="fa-solid fa-upload"></i> Upload Image</button>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div class="fg">
+              <label>Selling Price ($)</label>
+              <input type="number" step="0.01" id="order-inp-price" class="adm-input" required value="900.38">
+            </div>
+            <div class="fg">
+              <label>Quantity</label>
+              <input type="number" id="order-inp-qty" class="adm-input" required value="1">
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div class="fg">
+              <label>Profit ($)</label>
+              <input type="number" step="0.01" id="order-inp-profit" class="adm-input" required value="135.06">
+            </div>
+            <div class="fg">
+              <label>Initial Pipeline Status</label>
+              <select id="order-inp-status" class="adm-input">
+                <option value="To Pickup" selected>Awaiting Pickup (To Pickup)</option>
+                <option value="Waiting for Shipment">Waiting for Shipment</option>
+                <option value="Shipped">Shipped</option>
+                <option value="Received">Received</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:16px;">
+          <button type="submit" class="btn-primary" style="width:100%;"><i class="fa-solid fa-plus-circle"></i> Add Order to Merchant Pipeline</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/admin/admin.js"></script>
+</body>
+</html>

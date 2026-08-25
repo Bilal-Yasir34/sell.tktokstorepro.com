@@ -1,0 +1,278 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "AMKS",
+      "email": "amks.pk@hotmail.com",
+      "avatar": "/uploads/amks_logo.png",
+      "level": "V0",
+      "rating": 5,
+      "credit_score": 96,
+      "followers": 1420,
+      "balance": 205.54,
+      "pending_balance": 38017.34,
+      "total_income": 94156.54,
+      "today_orders": 14,
+      "today_sales": 5240,
+      "today_profit": 1048,
+      "visitors_today": 1350,
+      "visitors_7days": 9840,
+      "visitors_30days": 42100,
+      "rating_rate": 96,
+      "notice": "Dear users, please pay attention to your payment. Late payments may negatively impact the store's credit score and other aspects."
+    }
+  ],
+  "products": [
+    {
+      "id": 101,
+      "title": "Foursun 1500W Portable Power Station (3000W Peak), 1598.4Wh with 2x 1500W AC Outlets, Wireless Charging, PD 65W, Solar Generator (Solar Panel Not Included) for Home Backup, Emergency, Outdoor Camping",
+      "spec": "",
+      "price": 900.38,
+      "stock": 100,
+      "sales_count": 22,
+      "click_count": 529,
+      "expected_profit": 0,
+      "is_top10": 1,
+      "image_url": "/uploads/powerstation.png",
+      "category": "Power"
+    },
+    {
+      "id": 102,
+      "title": "SIM Free iPhone 17 Pro Max 5G 1TB AI Phone Silver PreOrder",
+      "spec": "",
+      "price": 1285.22,
+      "stock": 100,
+      "sales_count": 18,
+      "click_count": 480,
+      "expected_profit": 0,
+      "is_top10": 1,
+      "image_url": "/uploads/iphone_silver.png",
+      "category": "Phones"
+    },
+    {
+      "id": 103,
+      "title": "SIM Free iPhone 17 Pro Max 5G 1TB AI Phone Cosmic Orange Pre-Order",
+      "spec": "",
+      "price": 1290,
+      "stock": 100,
+      "sales_count": 12,
+      "click_count": 450,
+      "expected_profit": 0,
+      "is_top10": 1,
+      "image_url": "/uploads/iphone_orange.png",
+      "category": "Phones"
+    },
+    {
+      "id": 104,
+      "title": "SIM Free iPhone 17 Pro Max 5G 1TB AI Phone Deep Blue Pre-Order",
+      "spec": "",
+      "price": 1320.5,
+      "stock": 100,
+      "sales_count": 10,
+      "click_count": 410,
+      "expected_profit": 0,
+      "is_top10": 1,
+      "image_url": "/uploads/iphone_blue.png",
+      "category": "Phones"
+    },
+    {
+      "id": 105,
+      "title": "Portable Thermal Shipping Label Printer 4x6 for Small Business",
+      "spec": "",
+      "price": 142.6,
+      "stock": 100,
+      "sales_count": 35,
+      "click_count": 620,
+      "expected_profit": 0,
+      "is_top10": 1,
+      "image_url": "/uploads/printer.png",
+      "category": "Office"
+    },
+    {
+      "id": 106,
+      "title": "Wireless Noise Cancelling Earbuds Pro with Smart Touch Control",
+      "spec": "",
+      "price": 89.99,
+      "stock": 100,
+      "sales_count": 48,
+      "click_count": 890,
+      "expected_profit": 0,
+      "is_top10": 1,
+      "image_url": "/uploads/earbuds.png",
+      "category": "Audio"
+    },
+    {
+      "id": 107,
+      "title": "4K Ultra HD Dash Cam Front and Rear with Night Vision & WiFi",
+      "spec": "",
+      "price": 115.4,
+      "stock": 100,
+      "sales_count": 14,
+      "click_count": 310,
+      "expected_profit": 0,
+      "is_top10": 1,
+      "image_url": "/uploads/dashcam.png",
+      "category": "Electronics"
+    },
+    {
+      "id": 108,
+      "title": "Smart Watch Ultra 2 with Titanium Case & Cellular Tracking",
+      "spec": "",
+      "price": 399,
+      "stock": 100,
+      "sales_count": 9,
+      "click_count": 396,
+      "expected_profit": 0,
+      "is_top10": 1,
+      "image_url": "/uploads/apple_watch.png",
+      "category": "Wearables"
+    },
+    {
+      "id": 109,
+      "title": "SIM Free iPhone 17 Pro Max 5G 512GB AI Phone Blue Pre-Order",
+      "spec": "",
+      "price": 1238.65,
+      "stock": 100,
+      "sales_count": 4,
+      "click_count": 482,
+      "expected_profit": 0,
+      "is_top10": 1,
+      "image_url": "/uploads/iphone_blue.png",
+      "category": "Phones"
+    },
+    {
+      "id": 110,
+      "title": "SIM Free iPhone 17 Pro Max 5G 512GB AI Phone Blue Pre-Order",
+      "spec": "",
+      "price": 1331.85,
+      "stock": 100,
+      "sales_count": 5,
+      "click_count": 542,
+      "expected_profit": 0,
+      "is_top10": 1,
+      "image_url": "/uploads/iphone_blue.png",
+      "category": "Phones"
+    }
+  ],
+  "orders": [
+    {
+      "id": 1001,
+      "order_no": "2026082522030045253505",
+      "product_id": 101,
+      "product_title": "SAMSUNG Galaxy S22 Ultra Phone, Factory Unlocked Android Smartphone, 256GB, 8K...",
+      "product_image": "/uploads/powerstation.png",
+      "price": 860.69,
+      "total_cost": 731.59,
+      "quantity": 1,
+      "total_amount": 860.69,
+      "profit": 129.1,
+      "status": "To Pickup",
+      "shipping_address": "Šentrupert Tavcarjeva 62 Slovenia",
+      "phone_number": "386****005",
+      "timer_countdown": "08:14:48",
+      "created_at": "2026-08-25 00:29:28"
+    },
+    {
+      "id": 1002,
+      "order_no": "2026082500000000000000",
+      "product_id": 102,
+      "product_title": "SIM Free iPhone Air 5G 512GB AI Phone - Sky Blue Pre-Order",
+      "product_image": "/uploads/iphone_silver.png",
+      "price": 1141.45,
+      "total_cost": 970.23,
+      "quantity": 1,
+      "total_amount": 1141.45,
+      "profit": 171.22,
+      "status": "To Pickup",
+      "shipping_address": "SEISENEGG Wurmbrandgasse 85 Austria",
+      "phone_number": "430****452",
+      "timer_countdown": "08:12:47",
+      "created_at": "2026-08-24 11:40:45"
+    },
+    {
+      "id": 1003,
+      "order_no": "2026082488493021948201",
+      "product_id": 103,
+      "product_title": "Foursun 1500W Portable Power Station (3000W Peak), 1598.4Wh with 2x 1500W AC Outlets",
+      "product_image": "/uploads/powerstation.png",
+      "price": 900.38,
+      "total_cost": 765.32,
+      "quantity": 1,
+      "total_amount": 900.38,
+      "profit": 135.06,
+      "status": "To Pickup",
+      "shipping_address": "Kranj Cesta 1 maja 44 Slovenia",
+      "phone_number": "386****912",
+      "timer_countdown": "08:06:51",
+      "created_at": "2026-08-24 16:30:12"
+    },
+    {
+      "id": 1004,
+      "order_no": "2026082477123984019283",
+      "product_id": 104,
+      "product_title": "SIM Free iPhone 17 Pro Max 5G 1TB AI Phone Silver PreOrder",
+      "product_image": "/uploads/iphone_silver.png",
+      "price": 1285.22,
+      "total_cost": 1092.44,
+      "quantity": 1,
+      "total_amount": 1285.22,
+      "profit": 192.78,
+      "status": "To Pickup",
+      "shipping_address": "Vienna Mariahilfer Str 12 Austria",
+      "phone_number": "430****881",
+      "timer_countdown": "07:47:01",
+      "created_at": "2026-08-24 14:15:00"
+    }
+  ],
+  "transactions": [],
+  "messages": [
+    {
+      "id": 1,
+      "sender": "admin",
+      "message": "Welcome to TikTok Shop Merchant Support. How can we help you today?",
+      "image_url": "",
+      "is_read": 0,
+      "created_at": "2026-08-24 08:00:00"
+    }
+  ],
+  "notifications": [
+    {
+      "id": 1,
+      "message": "Withdrawal review notification",
+      "sent_time": "2026-08-24 11:14:02",
+      "type": "System Message",
+      "sender": "System",
+      "is_read": 1
+    },
+    {
+      "id": 2,
+      "message": "Recharge review notification",
+      "sent_time": "2026-08-24 11:13:37",
+      "type": "System Message",
+      "sender": "System",
+      "is_read": 1
+    }
+  ],
+  "faqs": [
+    {
+      "id": 1,
+      "title": "How to process customer orders?",
+      "content": "Go to the Order tab, locate orders waiting for pickup, and tap 'Click to Pickup' to proceed with dispatch."
+    },
+    {
+      "id": 2,
+      "title": "When will my wallet earnings settle?",
+      "content": "Order profits move from Pending Balance to Available Balance once the buyer confirms delivery or within 7 business days."
+    },
+    {
+      "id": 3,
+      "title": "How do I top up my store account?",
+      "content": "Use the Recharge button on the Home tab to deposit via USDT TRC20 transfer."
+    },
+    {
+      "id": 4,
+      "title": "How to withdraw funds to my account?",
+      "content": "Tap Withdrawal on the Home tab, enter your withdrawal amount and payout details, and submit for instant review."
+    }
+  ]
+}
