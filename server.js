@@ -153,6 +153,25 @@ app.delete('/api/orders/:id', async (req, res) => {
   }
 });
 
+app.put('/api/orders/:id/timer', async (req, res) => {
+  try {
+    const { timer_hours } = req.body;
+    const hours = parseFloat(timer_hours);
+    if (isNaN(hours) || hours < 0.1) {
+      return res.status(400).json({ success: false, error: 'Invalid timer_hours value' });
+    }
+    // Store in settings.order_timers so it persists independently of the orders table
+    const currentSettings = await db.getSettings();
+    const orderTimers = Object.assign({}, currentSettings.order_timers || {});
+    orderTimers[String(req.params.id)] = hours;
+    const updated = await db.updateSettings({ order_timers: orderTimers });
+    io.emit('settings_updated', updated);
+    res.json({ success: true, data: updated });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 app.post('/api/upload', upload.single('image'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ success: false, error: 'No image uploaded' });
@@ -339,7 +358,27 @@ app.put('/api/notifications/read', async (req, res) => {
   }
 });
 
-// 8. Admin Authentication
+// 8. Settings
+app.get('/api/settings', async (req, res) => {
+  try {
+    const settings = await db.getSettings();
+    res.json({ success: true, data: settings });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.put('/api/settings', async (req, res) => {
+  try {
+    const updated = await db.updateSettings(req.body);
+    io.emit('settings_updated', updated);
+    res.json({ success: true, data: updated });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 9. Admin Authentication
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'LifeIscool4me!';
 
 app.post('/api/admin/login', (req, res) => {

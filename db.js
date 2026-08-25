@@ -294,7 +294,11 @@ let store = {
     { id: 2, title: "When will my wallet earnings settle?", content: "Order profits move from Pending Balance to Available Balance once the buyer confirms delivery or within 7 business days." },
     { id: 3, title: "How do I top up my store account?", content: "Use the Recharge button on the Home tab to deposit via USDT TRC20 transfer." },
     { id: 4, title: "How to withdraw funds to my account?", content: "Tap Withdrawal on the Home tab, enter your withdrawal amount and payout details, and submit for instant review." }
-  ]
+  ],
+  settings: {
+    pickup_timer_hours: 24,
+    order_timers: {}
+  }
 };
 
 function saveJsonDb() {
@@ -306,6 +310,28 @@ function saveJsonDb() {
 }
 
 async function initDb() {
+  // Load persisted JSON database if it exists
+  try {
+    if (fs.existsSync(jsonDbPath)) {
+      const raw = fs.readFileSync(jsonDbPath, 'utf8');
+      const saved = JSON.parse(raw);
+      // Merge saved data into store (don't replace entire store to keep defaults)
+      if (saved.users && saved.users.length > 0) store.users = saved.users;
+      if (saved.products && saved.products.length > 0) store.products = saved.products;
+      if (saved.orders && saved.orders.length > 0) store.orders = saved.orders;
+      if (saved.transactions) store.transactions = saved.transactions;
+      if (saved.messages) store.messages = saved.messages;
+      if (saved.notifications) store.notifications = saved.notifications;
+      if (saved.faqs && saved.faqs.length > 0) store.faqs = saved.faqs;
+      if (saved.settings) store.settings = Object.assign({ pickup_timer_hours: 24, order_timers: {} }, saved.settings);
+    }
+  } catch (err) {
+    console.log('Could not load database.json, using in-memory defaults:', err.message);
+  }
+  // Ensure settings always exists
+  if (!store.settings) store.settings = { pickup_timer_hours: 24, order_timers: {} };
+  if (typeof store.settings.pickup_timer_hours !== 'number') store.settings.pickup_timer_hours = 24;
+  if (!store.settings.order_timers || typeof store.settings.order_timers !== 'object') store.settings.order_timers = {};
   return true;
 }
 
@@ -496,6 +522,23 @@ async function updateOrderStatus(orderId, status) {
   }
   return o || { id: orderId, status };
 }
+
+async function updateOrderFields(orderId, fields) {
+  const o = store.orders.find(x => x.id == orderId);
+  if (o) Object.assign(o, fields);
+  saveJsonDb();
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('orders').update(fields).eq('id', orderId).select().single();
+      if (!error && data) return data;
+    } catch (e) {
+      console.error('Supabase updateOrderFields error:', e.message);
+    }
+  }
+  return o || { id: orderId, ...fields };
+}
+
 
 // Transactions
 async function getTransactions() {
@@ -699,6 +742,40 @@ async function getFaqs() {
   return store.faqs;
 }
 
+// Settings
+async function getSettings() {
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('settings').select('*').eq('id', 1).single();
+      if (!error && data) {
+        Object.assign(store.settings, data);
+        return data;
+      }
+    } catch (e) {
+      // Supabase settings table may not exist, fall through to local store
+    }
+  }
+  return store.settings;
+}
+
+async function updateSettings(fields) {
+  Object.assign(store.settings, fields);
+  saveJsonDb();
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('settings').update(fields).eq('id', 1).select().single();
+      if (!error && data) {
+        Object.assign(store.settings, data);
+        return data;
+      }
+    } catch (e) {
+      // Fall through to local store result
+    }
+  }
+  return store.settings;
+}
+
 module.exports = {
   initDb,
   getUser,
@@ -710,6 +787,7 @@ module.exports = {
   getOrders,
   createOrder,
   updateOrderStatus,
+  updateOrderFields,
   deleteOrder,
   getTransactions,
   createTransaction,
@@ -720,5 +798,7 @@ module.exports = {
   getFaqs,
   getNotifications,
   createNotification,
-  markNotificationsRead
+  markNotificationsRead,
+  getSettings,
+  updateSettings
 };

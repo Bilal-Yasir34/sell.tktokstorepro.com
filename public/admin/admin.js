@@ -15,6 +15,8 @@ let transactions = [];
 let products = [];
 let orders = [];
 let pollingTimer = null;
+let pickupTimerHours = 24; // Default global timer; overridden by admin settings
+let orderTimers = {};      // Per-order timer map: { orderId: hours }
 
 document.addEventListener('DOMContentLoaded', () => {
   checkAdminAuth();
@@ -123,6 +125,7 @@ window.handleAdminLogout = function() {
 // Admin Main Initialization
 async function initAdmin() {
   setupSocket();
+  await loadTimerSettings();
   await loadUserData();
   await loadTransactions();
   await loadProducts();
@@ -158,6 +161,17 @@ function setupSocket() {
 
     socket.on('orders_updated', async () => {
       await loadOrders();
+    });
+
+    socket.on('settings_updated', (data) => {
+      if (data && typeof data.pickup_timer_hours === 'number') {
+        pickupTimerHours = data.pickup_timer_hours;
+        const inp = document.getElementById('adm-pickup-timer-hours');
+        if (inp) inp.value = pickupTimerHours;
+      }
+      if (data && data.order_timers && typeof data.order_timers === 'object') {
+        orderTimers = data.order_timers;
+      }
     });
   } catch (e) {
     console.log('Socket setup caught:', e);
@@ -434,6 +448,71 @@ async function loadOrders(render = true) {
   }
 }
 
+// Load & Save Timer Settings
+async function loadTimerSettings() {
+  try {
+    const res = await fetch('/api/settings');
+    const json = await res.json();
+    if (json.success && json.data) {
+      if (typeof json.data.pickup_timer_hours === 'number') {
+        pickupTimerHours = json.data.pickup_timer_hours;
+      }
+      if (json.data.order_timers && typeof json.data.order_timers === 'object') {
+        orderTimers = json.data.order_timers;
+      }
+    }
+    const inp = document.getElementById('adm-pickup-timer-hours');
+    if (inp) inp.value = pickupTimerHours;
+  } catch (err) {
+    console.error('Admin load settings error:', err);
+  }
+}
+
+window.handleSaveTimerSettings = async function(e) {
+  if (e) e.preventDefault();
+  const inp = document.getElementById('adm-pickup-timer-hours');
+  const btn = document.getElementById('btn-save-timer');
+  const msg = document.getElementById('timer-settings-msg');
+  const hours = inp ? parseInt(inp.value, 10) : NaN;
+
+  if (!hours || hours < 1) return;
+
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...'; }
+  if (msg) msg.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pickup_timer_hours: hours })
+    });
+    const json = await res.json();
+    if (json.success) {
+      pickupTimerHours = hours;
+      if (msg) {
+        msg.textContent = `✅ Timer updated to ${hours} hour${hours !== 1 ? 's' : ''} successfully.`;
+        msg.style.color = '#059669';
+        msg.style.display = 'block';
+        setTimeout(() => { if (msg) msg.style.display = 'none'; }, 4000);
+      }
+    } else {
+      if (msg) {
+        msg.textContent = '❌ Failed to save. Please try again.';
+        msg.style.color = '#ef4444';
+        msg.style.display = 'block';
+      }
+    }
+  } catch (err) {
+    if (msg) {
+      msg.textContent = '❌ Network error. Please try again.';
+      msg.style.color = '#ef4444';
+      msg.style.display = 'block';
+    }
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-save"></i> Save Timer Setting'; }
+  }
+};
+
 function getOrderTimerInfo(order) {
   if (!order) return { text: '', isExceeded: false };
   const isPickup = (order.status === 'To Pickup' || order.status === 'Awaiting Pickup' || (order.status && order.status.includes('Pickup')));
@@ -450,10 +529,14 @@ function getOrderTimerInfo(order) {
   }
 
   const elapsedSeconds = Math.max(0, Math.floor((Date.now() - createdAtMs) / 1000));
-  const limitSeconds = 24 * 3600;
-  const totalWindowSeconds = 48 * 3600;
+  // Per-order timer (from settings.order_timers) overrides the global setting
+  const perOrderHours = orderTimers[String(order.id)];
+  const effectiveHours = (perOrderHours != null && !isNaN(parseFloat(perOrderHours)))
+    ? parseFloat(perOrderHours)
+    : pickupTimerHours;
+  const totalWindowSeconds = effectiveHours * 3600;
 
-  if (elapsedSeconds >= limitSeconds || elapsedSeconds >= totalWindowSeconds) {
+  if (elapsedSeconds >= totalWindowSeconds) {
     return { text: 'Time Limit Exceed', isExceeded: true };
   }
 
@@ -462,7 +545,7 @@ function getOrderTimerInfo(order) {
   const minutes = Math.floor((remainingSeconds % 3600) / 60);
   const seconds = remainingSeconds % 60;
   const pad = (n) => String(n).padStart(2, '0');
-  return { text: `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`, isExceeded: false };
+  return { text: `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`, isExceeded: false, effectiveHours };
 }
 
 let adminOrderTimerInterval = null;
@@ -500,6 +583,11 @@ function renderOrdersTable() {
     const isPickup = (o.status === 'To Pickup' || o.status === 'Awaiting Pickup' || (o.status && o.status.includes('Pickup')));
     const timerInfo = isPickup ? getOrderTimerInfo(o) : null;
     const timerText = timerInfo && timerInfo.text ? `<span data-adm-timer-id="${o.id}" style="color:#fe2c55; font-weight:700; margin-left:4px; font-size:11px;">(${timerInfo.text})</span>` : '';
+    // Effective hours shown in the input: from orderTimers map, else global default
+    const perOrderHours = orderTimers[String(o.id)];
+    const currentTimerHours = (perOrderHours != null && !isNaN(parseFloat(perOrderHours)))
+      ? parseFloat(perOrderHours)
+      : pickupTimerHours;
 
     return `
       <tr>
@@ -526,6 +614,25 @@ function renderOrdersTable() {
             </select>
             ${timerText}
           </div>
+          ${isPickup ? `
+          <div style="display:flex; align-items:center; gap:5px; margin-top:6px;">
+            <input
+              type="number"
+              id="order-timer-inp-${o.id}"
+              class="adm-input"
+              value="${currentTimerHours}"
+              min="0.1" max="720" step="0.5"
+              style="padding:3px 6px; font-size:11px; width:62px; border-radius:5px;"
+              title="Set individual timer for this order (hours)"
+              placeholder="hrs"
+            >
+            <span style="font-size:10px; color:#6b7280;">hrs</span>
+            <button
+              onclick="handleSetOrderTimer(${o.id})"
+              style="padding:3px 8px; font-size:11px; background:#6366f1; color:#fff; border:none; border-radius:5px; cursor:pointer; font-weight:600; white-space:nowrap;"
+              title="Save timer for this order"
+            >⏱ Set</button>
+          </div>` : ''}
         </td>
         <td>
           <button class="btn-action btn-reject" onclick="handleDeleteOrder(${o.id})" title="Delete order from pipeline"><i class="fa-solid fa-trash"></i> Delete</button>
@@ -552,6 +659,50 @@ window.handleOrderStatusChange = async function(id, status) {
     alert('Error updating order status: ' + err.message);
   }
 };
+
+window.handleSetOrderTimer = async function(id) {
+  const inp = document.getElementById(`order-timer-inp-${id}`);
+  if (!inp) return;
+  const hours = parseFloat(inp.value);
+  if (isNaN(hours) || hours < 0.1) {
+    showAdminToast('Please enter a valid number of hours (min 0.1).', 'error');
+    return;
+  }
+  try {
+    const res = await fetch(`/api/orders/${id}/timer`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ timer_hours: hours })
+    });
+    const data = await res.json();
+    if (data.success) {
+      // Update local orderTimers map immediately so the countdown recalculates
+      orderTimers[String(id)] = hours;
+      showAdminToast(`✅ Timer set to ${hours}h for this order.`, 'success');
+    } else {
+      showAdminToast('❌ Failed to set timer: ' + (data.error || 'Unknown error'), 'error');
+    }
+  } catch (err) {
+    showAdminToast('❌ Network error saving timer.', 'error');
+  }
+};
+
+function showAdminToast(msg, type) {
+  // Re-use existing toast or create a simple inline alert
+  let toast = document.getElementById('adm-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'adm-toast';
+    toast.style.cssText = 'position:fixed;bottom:24px;right:24px;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;z-index:9999;transition:opacity 0.3s;';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.background = type === 'error' ? '#ef4444' : '#10b981';
+  toast.style.color = '#fff';
+  toast.style.opacity = '1';
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => { toast.style.opacity = '0'; }, 3000);
+}
 
 window.handleDeleteOrder = async function(id) {
   if (!confirm('Are you sure you want to permanently delete this order from the pipeline?')) return;

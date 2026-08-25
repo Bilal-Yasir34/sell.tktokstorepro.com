@@ -300,7 +300,30 @@
             </tbody>
           </table>
         </div>
+
+        <!-- Timer Settings Card -->
+        <div class="panel-card" style="margin-top:20px;">
+          <div class="card-title"><i class="fa-solid fa-clock"></i> Awaiting Pickup — Timer Settings</div>
+          <p style="font-size:13px; color:#6b7280; margin-bottom:14px;">
+            Set how many hours the countdown timer runs for products in the <strong>Awaiting Pickup</strong> pipeline. Once the timer expires, the order will show <span style="color:#fe2c55; font-weight:700;">Time Limit Exceed</span>.
+          </p>
+          <form id="form-timer-settings" onsubmit="handleSaveTimerSettings(event)">
+            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+              <div class="fg" style="min-width:180px; margin:0;">
+                <label>Pickup Timer Duration (Hours)</label>
+                <input type="number" id="adm-pickup-timer-hours" class="adm-input" min="1" max="720" step="1" value="24" required placeholder="e.g. 24">
+              </div>
+              <div style="padding-top:18px;">
+                <button type="submit" class="btn-primary" id="btn-save-timer" style="background:#0d9488;">
+                  <i class="fa-solid fa-save"></i> Save Timer Setting
+                </button>
+              </div>
+              <div id="timer-settings-msg" style="padding-top:18px; font-size:13px; display:none;"></div>
+            </div>
+          </form>
+        </div>
       </section>
+
 
     </main>
   </div>

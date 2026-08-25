@@ -23,6 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentOrderPipeline = 'Awaiting Pickup';
   let selectedWithdrawalMethod = 'Bank Card';
   let clientPollingTimer = null;
+  let pickupTimerHours = 24; // Admin-configurable; fetched from /api/settings
+  let orderTimers = {};      // Per-order timer map: { orderId: hours }
 
   // Initialize App
   initApp();
@@ -35,10 +37,28 @@ document.addEventListener('DOMContentLoaded', () => {
     await fetchFaqs();
     await fetchChatMessages();
     await fetchNotificationsData();
+    await fetchPickupTimerSettings();
     initSalesChart();
     initBannerSlider();
     setupChatListeners();
     startClientPolling();
+  }
+
+  async function fetchPickupTimerSettings() {
+    try {
+      const res = await fetch('/api/settings');
+      const json = await res.json();
+      if (json.success && json.data) {
+        if (typeof json.data.pickup_timer_hours === 'number') {
+          pickupTimerHours = json.data.pickup_timer_hours;
+        }
+        if (json.data.order_timers && typeof json.data.order_timers === 'object') {
+          orderTimers = json.data.order_timers;
+        }
+      }
+    } catch (err) {
+      // Fall back to default (24h)
+    }
   }
 
   // Socket.io Client Engine
@@ -90,6 +110,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
       socket.on('orders_updated', async () => {
         await fetchOrders(currentOrderPipeline);
+      });
+
+      socket.on('settings_updated', (data) => {
+        if (data && typeof data.pickup_timer_hours === 'number') {
+          pickupTimerHours = data.pickup_timer_hours;
+        }
+        if (data && data.order_timers && typeof data.order_timers === 'object') {
+          orderTimers = data.order_timers;
+        }
       });
     } catch (e) {
       console.log('Socket init caught:', e);
@@ -500,7 +529,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (navOrderBadge) navOrderBadge.textContent = pickupCount;
   }
 
-  // Realtime 48-Hour Countdown Engine with 24-Hour Exceed Threshold
+  // Realtime Countdown Engine — duration set by admin via /api/settings (pickup_timer_hours)
   function getOrderTimerInfo(order) {
     if (!order) return { text: '', isExceeded: false };
 
@@ -522,11 +551,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const elapsedSeconds = Math.max(0, Math.floor((Date.now() - createdAtMs) / 1000));
-    const limitSeconds = 24 * 3600; // 24 hours threshold where limit exceeds
-    const totalWindowSeconds = 48 * 3600; // 48 hours total timer window
+    // Per-order timer (from settings.order_timers) overrides the global setting
+    const perOrderHours = orderTimers[String(order.id)];
+    const effectiveHours = (perOrderHours != null && !isNaN(parseFloat(perOrderHours)))
+      ? parseFloat(perOrderHours)
+      : pickupTimerHours;
+    const totalWindowSeconds = effectiveHours * 3600;
 
-    // When 24 hours have passed, show "Time Limit Exceed"
-    if (elapsedSeconds >= limitSeconds || elapsedSeconds >= totalWindowSeconds) {
+    // When the timer expires, show "Time Limit Exceed"
+    if (elapsedSeconds >= totalWindowSeconds) {
       return { text: 'Time Limit Exceed', isExceeded: true };
     }
 
@@ -1876,6 +1909,12 @@ document.addEventListener('DOMContentLoaded', function() {
   const orderList = document.getElementById('order-list-container');
   if (orderList) {
     orderList.addEventListener('click', function(e) {
+      // If the click originated from the "Click to Pickup" button,
+      // a checkbox, or any other button inside the card, let those
+      // elements handle it themselves — do NOT open the detail modal.
+      const isInteractive = e.target.closest('button, .oc-checkbox, .btn-click-pickup');
+      if (isInteractive) return;
+
       // Walk up from the clicked target to find the order card
       let el = e.target;
       while (el && el !== orderList) {
