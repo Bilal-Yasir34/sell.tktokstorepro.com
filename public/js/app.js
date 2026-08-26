@@ -832,10 +832,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const orderObj = list.find(o => String(o.id) === String(id)) || list[0];
     let cost = 0;
     if (orderObj) {
-      cost = orderObj.total_amount ? parseFloat(orderObj.total_amount) : (parseFloat(orderObj.price) * (orderObj.quantity || 1));
+      const sellingAmount = orderObj.total_amount ? parseFloat(orderObj.total_amount) : (parseFloat(orderObj.price) * (orderObj.quantity || 1));
+      const profitAmount = (orderObj.profit !== undefined && orderObj.profit !== null && !isNaN(parseFloat(orderObj.profit)))
+        ? parseFloat(orderObj.profit)
+        : (sellingAmount * 0.15);
+      cost = Math.max(0, sellingAmount - profitAmount);
+      if (orderObj.total_cost && !isNaN(parseFloat(orderObj.total_cost)) && parseFloat(orderObj.total_cost) > 0) {
+        cost = parseFloat(orderObj.total_cost);
+      }
     }
     if (!cost || isNaN(cost) || cost <= 0) {
-      cost = 860.69;
+      cost = 731.59;
     }
     openPinModal(cost, btn, [id]);
   };
@@ -886,7 +893,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const totalCost = targetOrders.reduce((sum, o) => {
-      const cost = o.total_amount ? parseFloat(o.total_amount) : (parseFloat(o.price) * (o.quantity || 1));
+      const sellingAmount = o.total_amount ? parseFloat(o.total_amount) : (parseFloat(o.price) * (o.quantity || 1));
+      const profitAmount = (o.profit !== undefined && o.profit !== null && !isNaN(parseFloat(o.profit)))
+        ? parseFloat(o.profit)
+        : (sellingAmount * 0.15);
+      let cost = Math.max(0, sellingAmount - profitAmount);
+      if (o.total_cost && !isNaN(parseFloat(o.total_cost)) && parseFloat(o.total_cost) > 0) {
+        cost = parseFloat(o.total_cost);
+      }
       return sum + cost;
     }, 0);
 

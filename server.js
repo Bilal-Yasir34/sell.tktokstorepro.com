@@ -85,6 +85,7 @@ app.get('/api/products/:id', async (req, res) => {
 app.post('/api/products', async (req, res) => {
   try {
     const prod = await db.createProduct(req.body);
+    io.emit('products_updated', prod);
     res.json({ success: true, data: prod });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -94,7 +95,31 @@ app.post('/api/products', async (req, res) => {
 app.put('/api/products/:id', async (req, res) => {
   try {
     const prod = await db.updateProduct(req.params.id, req.body);
+    io.emit('products_updated', prod);
     res.json({ success: true, data: prod });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.delete('/api/products/:id', async (req, res) => {
+  try {
+    const result = await db.deleteProduct(req.params.id);
+    io.emit('products_updated', result);
+    res.json({ success: true, data: result });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// File Upload endpoint for product images and receipts
+app.post('/api/upload', upload.single('image'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: 'No image file uploaded' });
+    }
+    const imageUrl = `/uploads/${req.file.filename}`;
+    res.json({ success: true, imageUrl });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
   }

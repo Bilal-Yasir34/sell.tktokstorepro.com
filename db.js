@@ -375,8 +375,12 @@ async function getProducts() {
     try {
       const { data, error } = await supabase.from('products').select('*').order('is_top10', { ascending: false }).order('id', { ascending: true });
       if (!error && data && data.length > 0) {
-        store.products = data;
-        return data;
+        const normalized = data.map(p => ({
+          ...p,
+          profit: (p.expected_profit !== undefined && p.expected_profit !== null) ? p.expected_profit : (p.profit || 0)
+        }));
+        store.products = normalized;
+        return normalized;
       }
     } catch (e) {
       console.error('Supabase getProducts error:', e.message);
@@ -389,7 +393,12 @@ async function getProductById(id) {
   if (supabase) {
     try {
       const { data, error } = await supabase.from('products').select('*').eq('id', id).single();
-      if (!error && data) return data;
+      if (!error && data) {
+        return {
+          ...data,
+          profit: (data.expected_profit !== undefined && data.expected_profit !== null) ? data.expected_profit : (data.profit || 0)
+        };
+      }
     } catch (e) {}
   }
   return store.products.find(p => p.id == id);
@@ -402,8 +411,19 @@ async function updateProduct(id, fields) {
 
   if (supabase) {
     try {
-      const { data, error } = await supabase.from('products').update(fields).eq('id', id).select().single();
-      if (!error && data) return data;
+      const dbFields = {};
+      if (fields.price !== undefined) dbFields.price = parseFloat(fields.price);
+      if (fields.stock !== undefined) dbFields.stock = parseInt(fields.stock, 10);
+      if (fields.title !== undefined) dbFields.title = fields.title;
+      if (fields.image_url !== undefined) dbFields.image_url = fields.image_url;
+      if (fields.sales_count !== undefined) dbFields.sales_count = parseInt(fields.sales_count, 10);
+      if (fields.profit !== undefined) dbFields.expected_profit = parseFloat(fields.profit);
+      if (fields.expected_profit !== undefined) dbFields.expected_profit = parseFloat(fields.expected_profit);
+      if (fields.is_top10 !== undefined) dbFields.is_top10 = (fields.is_top10 === true || fields.is_top10 === 1 || fields.is_top10 === '1') ? 1 : 0;
+      
+      const { data, error } = await supabase.from('products').update(dbFields).eq('id', id).select().single();
+      if (!error && data) return Object.assign(p, data);
+      if (error) console.error('Supabase updateProduct error:', error.message);
     } catch (e) {
       console.error('Supabase updateProduct error:', e.message);
     }
@@ -413,18 +433,53 @@ async function updateProduct(id, fields) {
 
 async function createProduct(prod) {
   prod.id = prod.id || Date.now();
+  if (typeof prod.price === 'string') prod.price = parseFloat(prod.price) || 0;
+  if (typeof prod.stock === 'string') prod.stock = parseInt(prod.stock, 10) || 0;
+  if (typeof prod.sales_count === 'string') prod.sales_count = parseInt(prod.sales_count, 10) || 0;
+  if (typeof prod.click_count === 'string') prod.click_count = parseInt(prod.click_count, 10) || 0;
+  if (typeof prod.profit === 'string') prod.profit = parseFloat(prod.profit) || 0;
+  if (typeof prod.expected_profit === 'string') prod.expected_profit = parseFloat(prod.expected_profit) || 0;
+  if (typeof prod.rating === 'string') prod.rating = parseFloat(prod.rating) || 4.9;
+  
   store.products.push(prod);
   saveJsonDb();
 
   if (supabase) {
     try {
-      const { data, error } = await supabase.from('products').insert([prod]).select().single();
-      if (!error && data) return data;
+      const dbRecord = {
+        id: prod.id,
+        title: prod.title,
+        price: prod.price,
+        stock: prod.stock,
+        sales_count: prod.sales_count,
+        click_count: prod.click_count,
+        expected_profit: prod.profit || prod.expected_profit || 0,
+        is_top10: (prod.is_top10 === true || prod.is_top10 === 1 || prod.is_top10 === '1') ? 1 : 0,
+        image_url: prod.image_url || '',
+        category: prod.category || 'General'
+      };
+      const { data, error } = await supabase.from('products').insert([dbRecord]).select().single();
+      if (!error && data) return Object.assign(prod, data);
+      if (error) console.error('Supabase createProduct error:', error.message);
     } catch (e) {
       console.error('Supabase createProduct error:', e.message);
     }
   }
   return prod;
+}
+
+async function deleteProduct(id) {
+  const numericId = parseInt(id, 10);
+  store.products = store.products.filter(p => p.id !== numericId && p.id !== id);
+  saveJsonDb();
+  if (supabase) {
+    try {
+      await supabase.from('products').delete().eq('id', numericId || id);
+    } catch (e) {
+      console.error('Supabase deleteProduct error:', e.message);
+    }
+  }
+  return { id };
 }
 
 // Orders
@@ -784,6 +839,7 @@ module.exports = {
   getProductById,
   updateProduct,
   createProduct,
+  deleteProduct,
   getOrders,
   createOrder,
   updateOrderStatus,

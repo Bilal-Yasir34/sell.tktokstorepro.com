@@ -328,6 +328,72 @@
     </main>
   </div>
 
+  <!-- Add New Product to Catalog Modal -->
+  <div id="adm-add-product-modal" class="modal-backdrop" onclick="closeAddProductModal()">
+    <div class="modal-card" style="max-width:520px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title"><i class="fa-solid fa-box-open text-pink"></i> Add New Product to Catalog</div>
+        <span class="modal-close" onclick="closeAddProductModal()">&times;</span>
+      </div>
+      <form id="form-create-product" onsubmit="handleCreateProduct(event)">
+        <div class="form-grid" style="grid-template-columns: 1fr; gap:12px;">
+          <div class="fg">
+            <label>Product Title / Name</label>
+            <input type="text" id="prod-inp-title" class="adm-input" required placeholder="e.g. 2026 Wireless Active Noise Cancelling Headphones">
+          </div>
+          <div class="fg">
+            <label>Product Image (URL or Upload Image)</label>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <input type="text" id="prod-inp-image" class="adm-input" required placeholder="/uploads/my_product.png or https://..." style="flex:1;">
+              <input type="file" id="prod-inp-image-file" style="display:none;" accept="image/*" onchange="uploadProductImage(this)">
+              <button type="button" class="btn-action btn-approve" onclick="document.getElementById('prod-inp-image-file').click()" style="padding:7px 12px; font-size:12px; white-space:nowrap;"><i class="fa-solid fa-upload"></i> Upload Image</button>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div class="fg">
+              <label>Price ($)</label>
+              <input type="number" step="0.01" id="prod-inp-price" class="adm-input" required placeholder="99.99">
+            </div>
+            <div class="fg">
+              <label>Est. Profit ($)</label>
+              <input type="number" step="0.01" id="prod-inp-profit" class="adm-input" placeholder="15.00">
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div class="fg">
+              <label>Stock Inventory</label>
+              <input type="number" id="prod-inp-stock" class="adm-input" required value="999">
+            </div>
+            <div class="fg">
+              <label>Initial Sales Count</label>
+              <input type="number" id="prod-inp-sales" class="adm-input" value="120">
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <div class="fg">
+              <label>Rating (e.g. 4.9)</label>
+              <input type="number" step="0.1" min="1" max="5" id="prod-inp-rating" class="adm-input" value="4.9">
+            </div>
+            <div class="fg">
+              <label>Featured in TOP 10?</label>
+              <select id="prod-inp-top10" class="adm-input">
+                <option value="false" selected>No (Standard Product)</option>
+                <option value="true">Yes (TOP 10 Ribbon)</option>
+              </select>
+            </div>
+          </div>
+          <div class="fg">
+            <label>Product Description (Optional)</label>
+            <textarea id="prod-inp-desc" class="adm-input" rows="2" placeholder="High quality product details..."></textarea>
+          </div>
+        </div>
+        <div style="margin-top:16px;">
+          <button type="submit" class="btn-primary" style="width:100%;"><i class="fa-solid fa-plus-circle"></i> Save & Add Product to Catalog</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Add Order to Pipeline Modal -->
   <div id="adm-add-order-modal" class="modal-backdrop" onclick="closeAddOrderModal()">
     <div class="modal-card" style="max-width:480px;" onclick="event.stopPropagation()">

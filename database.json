@@ -34,7 +34,8 @@
       "expected_profit": 0,
       "is_top10": 1,
       "image_url": "/uploads/powerstation.png",
-      "category": "Power"
+      "category": "Power",
+      "profit": 0
     },
     {
       "id": 102,
@@ -47,7 +48,8 @@
       "expected_profit": 0,
       "is_top10": 1,
       "image_url": "/uploads/iphone_silver.png",
-      "category": "Phones"
+      "category": "Phones",
+      "profit": 0
     },
     {
       "id": 103,
@@ -60,7 +62,8 @@
       "expected_profit": 0,
       "is_top10": 1,
       "image_url": "/uploads/iphone_orange.png",
-      "category": "Phones"
+      "category": "Phones",
+      "profit": 0
     },
     {
       "id": 104,
@@ -73,7 +76,8 @@
       "expected_profit": 0,
       "is_top10": 1,
       "image_url": "/uploads/iphone_blue.png",
-      "category": "Phones"
+      "category": "Phones",
+      "profit": 0
     },
     {
       "id": 105,
@@ -86,7 +90,8 @@
       "expected_profit": 0,
       "is_top10": 1,
       "image_url": "/uploads/printer.png",
-      "category": "Office"
+      "category": "Office",
+      "profit": 0
     },
     {
       "id": 106,
@@ -99,7 +104,8 @@
       "expected_profit": 0,
       "is_top10": 1,
       "image_url": "/uploads/earbuds.png",
-      "category": "Audio"
+      "category": "Audio",
+      "profit": 0
     },
     {
       "id": 107,
@@ -112,7 +118,8 @@
       "expected_profit": 0,
       "is_top10": 1,
       "image_url": "/uploads/dashcam.png",
-      "category": "Electronics"
+      "category": "Electronics",
+      "profit": 0
     },
     {
       "id": 108,
@@ -125,7 +132,8 @@
       "expected_profit": 0,
       "is_top10": 1,
       "image_url": "/uploads/apple_watch.png",
-      "category": "Wearables"
+      "category": "Wearables",
+      "profit": 0
     },
     {
       "id": 109,
@@ -138,7 +146,8 @@
       "expected_profit": 0,
       "is_top10": 1,
       "image_url": "/uploads/iphone_blue.png",
-      "category": "Phones"
+      "category": "Phones",
+      "profit": 0
     },
     {
       "id": 110,
@@ -151,10 +160,132 @@
       "expected_profit": 0,
       "is_top10": 1,
       "image_url": "/uploads/iphone_blue.png",
-      "category": "Phones"
+      "category": "Phones",
+      "profit": 0
+    },
+    {
+      "id": 1787763073459,
+      "title": "Bose SoundLink Revolve Portable Bluetooth Speaker (Series II) – Waterproof wireless speaker with 360° sound, black",
+      "spec": "",
+      "price": 1081.05,
+      "stock": 999,
+      "sales_count": 120,
+      "click_count": 360,
+      "expected_profit": 162.15,
+      "is_top10": 0,
+      "image_url": "https://oss-hk.images688.com/tiktok/a8612a55ade1e550f2f92c6f4c679dbc/f42ce65f0361669124402e20e35ed87d.jpg",
+      "category": "General",
+      "profit": 162.15
+    },
+    {
+      "id": 1787763205344,
+      "title": "Lasko high speed rotating utility blower, used for cooling, ventilation, exhaust and drying in homes, construction sites, 2 AC outlets, circuit breaker with reset function, 3 speeds, 14\", black, U15617",
+      "spec": "",
+      "price": 289.79,
+      "stock": 999,
+      "sales_count": 120,
+      "click_count": 360,
+      "expected_profit": 173.88,
+      "is_top10": 0,
+      "image_url": "https://oss-hk.images688.com/tiktok/5d2ecdab5a656c8e49ce1f55c942f0e1/244bf9f6bdd0f14d6eaf73947f94f4e5.jpg",
+      "category": "General",
+      "profit": 173.88
+    },
+    {
+      "id": 1787763251715,
+      "title": "Apple Watch Ultra 3 GPS+Cell Smart Watch Milanese Pre-Order",
+      "spec": "",
+      "price": 808.25,
+      "stock": 999,
+      "sales_count": 120,
+      "click_count": 360,
+      "expected_profit": 121.24,
+      "is_top10": 0,
+      "image_url": "https://oss-hk.images688.com/argos/23f717e19dbbec347eb1c8fdc622693e/039319b246205d83124ce6d3d61fe69d.jpg",
+      "category": "General",
+      "profit": 121.24
+    },
+    {
+      "id": 1787763291125,
+      "title": "SIM Free iPhone Air 5G 512GB AI Phone - Sky Blue Pre-Order",
+      "spec": "",
+      "price": 1141.45,
+      "stock": 999,
+      "sales_count": 120,
+      "click_count": 360,
+      "expected_profit": 171.22,
+      "is_top10": 0,
+      "image_url": "https://oss-hk.images688.com/argos/04934a648fd8983b54e97df3e106291c/83afdd8549a1f9eb5dcfb3b4d330fb83.jpg",
+      "category": "General",
+      "profit": 171.22
     }
   ],
   "orders": [
+    {
+      "id": 1787763597803,
+      "order_no": "ORD-20260826-8974",
+      "product_id": 101,
+      "product_title": "SIM Free iPhone Air 5G 512GB AI Phone - Sky Blue Pre-Order",
+      "product_image": "https://oss-hk.images688.com/argos/04934a648fd8983b54e97df3e106291c/83afdd8549a1f9eb5dcfb3b4d330fb83.jpg",
+      "price": 1141.45,
+      "quantity": 1,
+      "total_amount": 1141.45,
+      "profit": 171.22,
+      "status": "To Pickup",
+      "created_at": "2026-08-26 21:59:57"
+    },
+    {
+      "id": 1787763556578,
+      "order_no": "ORD-20260826-8554",
+      "product_id": 101,
+      "product_title": "Bose SoundLink Revolve Portable Bluetooth Speaker (Series II) – Waterproof wireless speaker with 360° sound, black",
+      "product_image": "https://oss-hk.images688.com/tiktok/a8612a55ade1e550f2f92c6f4c679dbc/f42ce65f0361669124402e20e35ed87d.jpg",
+      "price": 1081.05,
+      "quantity": 1,
+      "total_amount": 1081.05,
+      "profit": 162.16,
+      "status": "To Pickup",
+      "created_at": "2026-08-26 21:59:16"
+    },
+    {
+      "id": 1787763506529,
+      "order_no": "ORD-20260826-7307",
+      "product_id": 101,
+      "product_title": "Apple Watch Ultra 3 GPS+Cell Smart Watch Milanese Pre-Order",
+      "product_image": "https://oss-hk.images688.com/argos/23f717e19dbbec347eb1c8fdc622693e/039319b246205d83124ce6d3d61fe69d.jpg",
+      "price": 808.25,
+      "quantity": 1,
+      "total_amount": 808.25,
+      "profit": 121.24,
+      "status": "To Pickup",
+      "created_at": "2026-08-26 21:58:26"
+    },
+    {
+      "id": 1787763446886,
+      "order_no": "ORD-20260826-8705",
+      "product_id": 101,
+      "product_title": "Lasko high speed rotating utility blower, used for cooling, ventilation, exhaust and drying in homes, construction sites, 2 AC outlets, circuit breaker with reset function, 3 speeds, 14\", black, U15617",
+      "product_image": "https://oss-hk.images688.com/tiktok/5d2ecdab5a656c8e49ce1f55c942f0e1/244bf9f6bdd0f14d6eaf73947f94f4e5.jpg",
+      "price": 289.79,
+      "quantity": 4,
+      "total_amount": 1159.16,
+      "profit": 43.47,
+      "status": "To Pickup",
+      "created_at": "2026-08-26 21:57:26"
+    },
+    {
+      "id": 1787763325158,
+      "order_no": "ORD-20260826-3176",
+      "product_id": 101,
+      "product_title": "Bose SoundLink Revolve Portable Bluetooth Speaker (Series II) – Waterproof wireless speaker with 360° sound, black",
+      "product_image": "https://oss-hk.images688.com/tiktok/a8612a55ade1e550f2f92c6f4c679dbc/f42ce65f0361669124402e20e35ed87d.jpg",
+      "price": 1081.05,
+      "quantity": 1,
+      "total_amount": 1081.05,
+      "profit": 162.16,
+      "status": "To Pickup",
+      "created_at": "2026-08-26 21:55:25"
+    },
     {
       "id": 1787694918417,
       "order_no": "ORD-20260825-1042",
@@ -165,7 +296,7 @@
       "quantity": 1,
       "total_amount": 860.69,
       "profit": 129.1,
-      "status": "To Pickup",
+      "status": "Received",
       "created_at": "2026-08-26 02:55:18",
       "timer_hours": 23
     },
@@ -179,7 +310,7 @@
       "quantity": 1,
       "total_amount": 1046.25,
       "profit": 156.94,
-      "status": "To Pickup",
+      "status": "Received",
       "created_at": "2026-08-26 02:54:19",
       "timer_hours": 22.6
     },
@@ -357,7 +488,12 @@
     "order_timers": {
       "1001": 6,
       "1787694859463": 47,
-      "1787694918417": 47
+      "1787694918417": 47,
+      "1787763325158": 17,
+      "1787763446886": 18.5,
+      "1787763506529": 20.89,
+      "1787763556578": 21.75,
+      "1787763597803": 21.89
     }
   }
 }

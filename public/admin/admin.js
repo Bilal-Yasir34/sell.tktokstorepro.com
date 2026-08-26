@@ -385,26 +385,143 @@ function renderProductsTable() {
   const tbody = document.getElementById('adm-prod-tbody');
   if (!tbody) return;
 
+  if (products.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#6b7280; padding:20px;">No products in catalog. Click "Add New Product" to create one.</td></tr>`;
+    return;
+  }
+
   tbody.innerHTML = products.map(p => `
     <tr>
-      <td>${p.id}</td>
+      <td>#${p.id}</td>
       <td>
         <div style="display:flex; align-items:center; gap:10px;">
-          <img src="${p.image_url}" style="width:36px; height:36px; object-fit:cover; border-radius:4px;">
-          <span style="max-width:250px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.title}</span>
+          <img src="${p.image_url || '/uploads/powerstation.png'}" style="width:36px; height:36px; object-fit:cover; border-radius:4px; border:1px solid #e5e7eb;">
+          <span style="max-width:220px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:600;">${p.title}</span>
         </div>
       </td>
-      <td>$${parseFloat(p.price).toFixed(2)}</td>
+      <td style="font-weight:700; color:#111827;">$${parseFloat(p.price).toFixed(2)}</td>
       <td>${p.stock}</td>
-      <td>${p.sales_count}</td>
-      <td>${p.click_count}</td>
+      <td>${p.sales_count || 0}</td>
+      <td style="color:#059669; font-weight:600;">$${parseFloat(p.profit || (parseFloat(p.price) * 0.15) || 0).toFixed(2)}</td>
       <td>${p.is_top10 ? '<span class="badge badge-success">TOP 10</span>' : '<span class="badge badge-warning">Standard</span>'}</td>
       <td>
-        <button class="btn-action btn-approve" onclick="editProductPrompt(${p.id})"><i class="fa-solid fa-edit"></i> Edit</button>
+        <div class="action-btn-group">
+          <button class="btn-action btn-approve" onclick="editProductPrompt(${p.id})"><i class="fa-solid fa-edit"></i> Edit</button>
+          <button class="btn-action btn-reject" onclick="deleteProduct(${p.id})"><i class="fa-solid fa-trash"></i> Delete</button>
+        </div>
       </td>
     </tr>
   `).join('');
 }
+
+window.openAddProductModal = function() {
+  const modal = document.getElementById('adm-add-product-modal');
+  if (!modal) return;
+  const form = document.getElementById('form-create-product');
+  if (form) form.reset();
+  document.getElementById('prod-inp-stock').value = '999';
+  document.getElementById('prod-inp-sales').value = '120';
+  document.getElementById('prod-inp-rating').value = '4.9';
+  document.getElementById('prod-inp-top10').value = 'false';
+  modal.classList.add('active');
+};
+
+window.closeAddProductModal = function() {
+  const modal = document.getElementById('adm-add-product-modal');
+  if (modal) modal.classList.remove('active');
+};
+
+window.uploadProductImage = async function(input) {
+  if (!input.files || !input.files[0]) return;
+  const formData = new FormData();
+  formData.append('image', input.files[0]);
+  try {
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData
+    });
+    const json = await res.json();
+    if (json.success && json.imageUrl) {
+      document.getElementById('prod-inp-image').value = json.imageUrl;
+      alert('Product image uploaded successfully!');
+    } else {
+      alert('Upload failed: ' + (json.error || 'Unknown error'));
+    }
+  } catch (err) {
+    alert('Error uploading image: ' + err.message);
+  }
+};
+
+window.handleCreateProduct = async function(e) {
+  if (e) e.preventDefault();
+  const title = document.getElementById('prod-inp-title').value.trim();
+  const image_url = document.getElementById('prod-inp-image').value.trim();
+  const price = parseFloat(document.getElementById('prod-inp-price').value) || 0;
+  const profit = parseFloat(document.getElementById('prod-inp-profit').value) || (price * 0.15);
+  const stock = parseInt(document.getElementById('prod-inp-stock').value, 10) || 0;
+  const sales_count = parseInt(document.getElementById('prod-inp-sales').value, 10) || 0;
+  const rating = parseFloat(document.getElementById('prod-inp-rating').value) || 4.9;
+  const is_top10 = document.getElementById('prod-inp-top10').value === 'true';
+  const description = (document.getElementById('prod-inp-desc') ? document.getElementById('prod-inp-desc').value.trim() : '') || '';
+
+  if (!title || !image_url || price <= 0) {
+    alert('Please enter a valid product title, image URL, and price.');
+    return;
+  }
+
+  const newProduct = {
+    id: Date.now(),
+    title,
+    image_url,
+    price,
+    profit,
+    stock,
+    sales_count,
+    click_count: sales_count * 3,
+    rating,
+    is_top10,
+    description
+  };
+
+  try {
+    const res = await fetch('/api/products', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newProduct)
+    });
+    const json = await res.json();
+    if (json.success) {
+      await loadProducts();
+      closeAddProductModal();
+      alert(`Product "${title}" added to catalog successfully!`);
+    } else {
+      alert('Failed to create product: ' + (json.error || 'Server error'));
+    }
+  } catch (err) {
+    alert('Error saving product: ' + err.message);
+  }
+};
+
+window.deleteProduct = async function(id) {
+  const prod = products.find(p => p.id === id);
+  const name = prod ? prod.title : `#${id}`;
+  if (!confirm(`Are you sure you want to delete product "${name}"?`)) return;
+
+  try {
+    const res = await fetch(`/api/products/${id}`, {
+      method: 'DELETE'
+    });
+    const json = await res.json();
+    if (json.success) {
+      await loadProducts();
+      alert('Product deleted successfully.');
+    } else {
+      alert('Failed to delete product: ' + (json.error || 'Server error'));
+    }
+  } catch (err) {
+    alert('Error deleting product: ' + err.message);
+  }
+};
 
 window.editProductPrompt = async function(id) {
   const prod = products.find(p => p.id === id);
@@ -428,6 +545,8 @@ window.editProductPrompt = async function(id) {
     if (json.success) {
       await loadProducts();
       alert('Product updated successfully!');
+    } else {
+      alert('Error updating product');
     }
   } catch (err) {
     alert('Error updating product');
