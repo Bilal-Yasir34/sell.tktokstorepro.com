@@ -664,7 +664,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <span class="oc-dots">...</span>
           <div class="oc-top-right">
             <span class="oc-status-text">${displayStatus}${timerHtml}</span>
-            <span class="oc-checkbox" data-order-id="${o.id}" onclick="event.stopPropagation(); this.classList.toggle('checked'); updateSelectAllState();"></span>
+            ${isPickup ? `<span class="oc-checkbox" data-order-id="${o.id}" onclick="event.stopPropagation(); this.classList.toggle('checked'); updateSelectAllState();"></span>` : ''}
           </div>
         </div>
         <div class="oc-main-content">
