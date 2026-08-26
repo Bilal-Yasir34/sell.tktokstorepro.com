@@ -653,7 +653,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     container.innerHTML = filtered.map(o => {
       const isPickup = (o.status && o.status.includes('Pickup')) || o.status === 'To Pickup' || o.status === 'Awaiting Pickup';
-      const displayStatus = isPickup ? 'Awaiting Pickup' : o.status;
+      const isShipped = o.status && (o.status.toLowerCase() === 'shipped' || o.status.toLowerCase() === 'in transit');
+      const displayStatus = isPickup ? 'Awaiting Pickup' : (isShipped ? 'In Transit' : o.status);
       const timerInfo = isPickup ? getOrderTimerInfo(o) : null;
       const timerHtml = timerInfo && timerInfo.text ? ` <span class="oc-timer ${timerInfo.isExceeded ? 'oc-timer-exceeded' : ''}" data-timer-order-id="${o.id}">(${timerInfo.text})</span>` : '';
 
