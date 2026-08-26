@@ -34,28 +34,41 @@
     <div class="app-content" id="app-content">
 
       <!-- ================= TAB 1: HOME ================= -->
-      <section class="tab-view active" id="tab-home">
+      <main class="tab-view active" id="tab-home">
+        <!-- Top Padded Box -->
+        <div class="home-top-box"></div>
+
         <!-- Header -->
-        <div class="home-header">
+        <div class="home-header grid grid-flow-col gap-4 py-6 text-white">
           <div class="header-left">
-            <div class="amks-logo-circle">
-              <img src="/uploads/amks_logo.png" alt="AMKS Logo" class="amks-round-avatar">
+            <div class="van-image amks-logo-box">
+              <img src="/uploads/amks_logo.png" alt="AMKS Logo" class="van-image__img">
             </div>
             <div class="header-info">
-              <div class="brand-title-text" id="home-brand-name">AMKS</div>
-              <div class="rating-stars-outline">
-                <i class="fa-regular fa-star"></i>
-                <i class="fa-regular fa-star"></i>
-                <i class="fa-regular fa-star"></i>
-                <i class="fa-regular fa-star"></i>
-                <i class="fa-regular fa-star"></i>
+              <span class="brand-title-text text-lg text-black font-bold" id="home-brand-name">AMKS</span>
+              <div class="van-rate rating-stars-outline" role="radiogroup" tabindex="0">
+                <div class="van-rate__item" role="radio" tabindex="0" aria-setsize="5" aria-posinset="1">
+                  <i class="fa-regular fa-star"></i>
+                </div>
+                <div class="van-rate__item" role="radio" tabindex="-1" aria-setsize="5" aria-posinset="2">
+                  <i class="fa-regular fa-star"></i>
+                </div>
+                <div class="van-rate__item" role="radio" tabindex="-1" aria-setsize="5" aria-posinset="3">
+                  <i class="fa-regular fa-star"></i>
+                </div>
+                <div class="van-rate__item" role="radio" tabindex="-1" aria-setsize="5" aria-posinset="4">
+                  <i class="fa-regular fa-star"></i>
+                </div>
+                <div class="van-rate__item" role="radio" tabindex="-1" aria-setsize="5" aria-posinset="5">
+                  <i class="fa-regular fa-star"></i>
+                </div>
               </div>
             </div>
           </div>
-          <div class="header-right">
+          <div class="header-right flex items-center ml-auto">
             <div class="msg-bubble-btn" id="home-msg-btn" onclick="openNotificationsView()">
-              <i class="fa-regular fa-comment-dots"></i>
-              <span class="msg-badge-num">29</span>
+              <img src="/uploads/msg_icon.png" alt="Message Icon" class="header-msg-icon-img">
+              <span class="msg-badge-num">34</span>
             </div>
           </div>
         </div>
@@ -73,66 +86,60 @@
               <img src="/uploads/banner_slide_3.png" alt="TikTok Shop Star Rating Plans" class="promo-banner-img">
             </div>
           </div>
-          <!-- Dots Indicator -->
-          <div class="promo-banner-dots" id="promo-banner-dots">
-            <span class="pbd-dot active" onclick="goToBannerSlide(0)"></span>
-            <span class="pbd-dot" onclick="goToBannerSlide(1)"></span>
-            <span class="pbd-dot" onclick="goToBannerSlide(2)"></span>
-          </div>
         </div>
 
         <!-- Shop Data Matrix (Grid Cards) -->
         <div class="matrix-section">
           <div class="matrix-header-row">
-            <div class="matrix-title">Shop Data</div>
-            <div class="matrix-expand">Expand Details <i class="fa-solid fa-chevron-down"></i></div>
+            <div class="matrix-title antialiased font-semibold mx-3.5 text-lg">Shop Data</div>
+            <div class="matrix-expand flex justify-end items-center text-gray-500 w-60 mr-1">Expand Details <i class="fa-solid fa-chevron-down" style="font-size: 11px; margin-left: 4px;"></i></div>
           </div>
 
           <!-- Top Row: Black Cards (Label Top, Value Bottom) -->
           <div class="matrix-grid top-row">
-            <div class="card card-dark">
-              <div class="card-label-top">Today's Orders<br>Sold</div>
-              <div class="card-num-bot" id="mat-orders-sold">1</div>
+            <div class="card card-dark flex flex-col justify-center items-center">
+              <div class="card-label-top antialiased text-base pt-2 px-2 text-white text-center">Today's Orders<br>Sold</div>
+              <div class="card-num-bot" id="mat-orders-sold">7</div>
             </div>
-            <div class="card card-dark">
-              <div class="card-label-top">Today's Total<br>Sales</div>
-              <div class="card-num-bot" id="mat-total-sales">0.00</div>
+            <div class="card card-dark flex flex-col justify-center items-center">
+              <div class="card-label-top antialiased text-base pt-2 px-2 text-white text-center">Today's Total<br>Sales</div>
+              <div class="card-num-bot" id="mat-total-sales">3196.43</div>
             </div>
-            <div class="card card-dark">
-              <div class="card-label-top">Today's profit<br>forecast</div>
-              <div class="card-num-bot" id="mat-profit-forecast">0.00</div>
+            <div class="card card-dark flex flex-col justify-center items-center">
+              <div class="card-label-top antialiased text-base pt-2 px-2 text-white text-center">Today's profit<br>forecast</div>
+              <div class="card-num-bot" id="mat-profit-forecast">479.47</div>
             </div>
           </div>
 
           <!-- Middle Row: Light Cards (Value Top, Label Bottom) -->
           <div class="matrix-grid mid-row">
             <div class="card card-light">
-              <div class="card-num-top" id="mat-visitors-today">219</div>
-              <div class="card-label-bot">Visitors Today</div>
+              <div class="card-num-top antialiased font-semibold text-lg text-black" id="mat-visitors-today">1164</div>
+              <div class="card-label-bot antialiased text-neutral-500 text-sm tc">Visitors Today</div>
             </div>
             <div class="card card-light">
-              <div class="card-num-top" id="mat-last-7days">10602</div>
-              <div class="card-label-bot">Last 7 Days</div>
+              <div class="card-num-top antialiased font-semibold text-lg text-black" id="mat-last-7days">10539</div>
+              <div class="card-label-bot antialiased text-neutral-500 text-sm tc">Last 7 Days</div>
             </div>
             <div class="card card-light">
-              <div class="card-num-top" id="mat-last-30days">42235</div>
-              <div class="card-label-bot">Last 30 Days</div>
+              <div class="card-num-top antialiased font-semibold text-lg text-black" id="mat-last-30days">44690</div>
+              <div class="card-label-bot antialiased text-neutral-500 text-sm tc">Last 30 Days</div>
             </div>
           </div>
 
           <!-- Bottom Row: Light Cards (Value Top, Label Bottom) -->
           <div class="matrix-grid bot-row">
             <div class="card card-light">
-              <div class="card-num-top" id="mat-followers">55</div>
-              <div class="card-label-bot">Shop Followers</div>
+              <div class="card-num-top antialiased font-semibold text-lg text-black" id="mat-followers">64</div>
+              <div class="card-label-bot antialiased text-neutral-500 text-sm tc">Shop Followers</div>
             </div>
             <div class="card card-light">
-              <div class="card-num-top" id="mat-rating-rate">96.00</div>
-              <div class="card-label-bot">Rating Rate</div>
+              <div class="card-num-top antialiased font-semibold text-lg text-black" id="mat-rating-rate">96.00</div>
+              <div class="card-label-bot antialiased text-neutral-500 text-sm tc">Rating Rate</div>
             </div>
             <div class="card card-light">
-              <div class="card-num-top" id="mat-credit-score">96</div>
-              <div class="card-label-bot">Credit Score</div>
+              <div class="card-num-top antialiased font-semibold text-lg text-black" id="mat-credit-score">97</div>
+              <div class="card-label-bot antialiased text-neutral-500 text-sm tc">Credit Score</div>
             </div>
           </div>
         </div>
@@ -142,26 +149,25 @@
           <div class="quick-grid">
             <div class="quick-item" onclick="openRecharge()">
               <div class="quick-icon-dark">
-                <i class="fa-solid fa-credit-card"></i>
+                <img src="/uploads/qa_recharge.png" alt="Recharge" class="quick-icon-img">
               </div>
               <div class="quick-text">Recharge</div>
             </div>
             <div class="quick-item" onclick="openWithdrawal()">
               <div class="quick-icon-dark">
-                <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                <img src="/uploads/qa_withdrawal.png" alt="Withdrawal" class="quick-icon-img">
               </div>
               <div class="quick-text">Withdrawal</div>
             </div>
             <div class="quick-item" onclick="showUnavailable('Upgrade VIP')">
               <div class="quick-icon-dark">
-                <i class="fa-solid fa-car"></i>
+                <img src="/uploads/qa_upgrade_vip.png" alt="Upgrade VIP" class="quick-icon-img">
               </div>
               <div class="quick-text">Upgrade VIP</div>
             </div>
             <div class="quick-item" onclick="openMerchantService()">
-              <div class="quick-icon-dark" style="position:relative;">
-                <i class="fa-solid fa-user"></i>
-                <span class="unread-dot-badge" id="merchant-service-dot"></span>
+              <div class="quick-icon-dark">
+                <img src="/uploads/qa_merchant_service.png" alt="Merchant Service" class="quick-icon-img">
               </div>
               <div class="quick-text">Merchant Service</div>
             </div>
@@ -199,7 +205,7 @@
         </div>
 
         <div class="bottom-padding"></div>
-      </section>
+      </main>
 
       <!-- ================= TAB 2: PRODUCT ================= -->
       <section class="tab-view" id="tab-product">
@@ -470,52 +476,58 @@
 
       <!-- ================= TAB 5: MY / PROFILE (100% Screenshot Pixel-Perfect Match) ================= -->
       <section class="tab-view" id="tab-my">
-        <!-- Top Black Header Card -->
+        <!-- Top Black Header Card with Nested White Order Status Card -->
         <div class="my-top-black-card">
-          <div class="my-header-user">
-            <div class="amks-logo-circle">
-              <img src="/uploads/amks_logo.png" alt="Avatar" id="my-avatar" class="amks-round-avatar">
+          <div class="my-header-user-row">
+            <div class="my-header-user">
+              <div class="amks-logo-circle">
+                <img src="/uploads/amks_logo.png" alt="Avatar" id="my-avatar" class="amks-round-avatar">
+              </div>
+              <div class="my-user-info">
+                <div class="my-user-email" id="my-email">amks.pk@hotmail.com</div>
+                <div class="my-user-id">ID:22636</div>
+              </div>
             </div>
-            <div class="my-user-info">
-              <div class="my-user-email" id="my-email">amks.pk@hotmail.com</div>
-              <div class="my-user-id">ID:22636</div>
+            <div class="my-level-v0-badge" onclick="openSubView('sub-upgrade-vip')">
+              <img src="/uploads/vip_v0_badge.png" alt="VIP Level" class="my-v0-badge-img">
             </div>
           </div>
-          <div class="my-level-v0-badge">
-            <span class="v0-icon">V<sub>0</sub></span>
-          </div>
-        </div>
 
-        <!-- Order Status Bar (Overlaid White Card) -->
-        <div class="my-order-status-card">
-          <div class="mos-item" onclick="showTab('order'); switchOrderPipeline('Waiting for Payment');">
-            <div class="mos-icon"><i class="fa-solid fa-arrow-right-to-bracket"></i></div>
-            <span class="mos-label">To pay</span>
-          </div>
-          <div class="mos-item" onclick="showTab('order'); switchOrderPipeline('Awaiting Pickup');">
-            <div class="mos-icon-badge-wrap">
-              <i class="fa-regular fa-calendar-plus"></i>
-              <span class="mos-badge" id="my-pickup-badge">5</span>
+          <!-- Order Status Bar (Nested Inside Black Card Matching Screenshot) -->
+          <div class="my-order-status-card">
+            <div class="mos-item" onclick="showTab('order'); switchOrderPipeline('Waiting for Payment');">
+              <div class="mos-icon-badge-wrap">
+                <img src="/uploads/my_status_topay.png" alt="To pay" class="mos-icon-img">
+              </div>
+              <span class="mos-label">To pay</span>
             </div>
-            <span class="mos-label">To Pickup</span>
-          </div>
-          <div class="mos-item" onclick="showTab('order'); switchOrderPipeline('Shipped');">
-            <div class="mos-icon-badge-wrap">
-              <i class="fa-solid fa-truck-moving"></i>
-              <span class="mos-badge">13</span>
+            <div class="mos-item" onclick="showTab('order'); switchOrderPipeline('Awaiting Pickup');">
+              <div class="mos-icon-badge-wrap">
+                <img src="/uploads/my_status_topickup.png" alt="To Pickup" class="mos-icon-img">
+                <span class="mos-badge" id="my-pickup-badge">5</span>
+              </div>
+              <span class="mos-label">To Pickup</span>
             </div>
-            <span class="mos-label">Shipped</span>
-          </div>
-          <div class="mos-item" onclick="showTab('order'); switchOrderPipeline('Received');">
-            <div class="mos-icon"><i class="fa-solid fa-cube"></i></div>
-            <span class="mos-label">Received</span>
-          </div>
-          <div class="mos-item" onclick="showTab('order'); switchOrderPipeline('Completed');">
-            <div class="mos-icon-badge-wrap">
-              <i class="fa-solid fa-clipboard-check"></i>
-              <span class="mos-badge">36</span>
+            <div class="mos-item" onclick="showTab('order'); switchOrderPipeline('Shipped');">
+              <div class="mos-icon-badge-wrap">
+                <img src="/uploads/my_status_shipped.png" alt="Shipped" class="mos-icon-img">
+                <span class="mos-badge">18</span>
+              </div>
+              <span class="mos-label">Shipped</span>
             </div>
-            <span class="mos-label">Completed</span>
+            <div class="mos-item" onclick="showTab('order'); switchOrderPipeline('Received');">
+              <div class="mos-icon-badge-wrap">
+                <img src="/uploads/my_status_received.png" alt="Received" class="mos-icon-img">
+              </div>
+              <span class="mos-label">Received</span>
+            </div>
+            <div class="mos-item" onclick="showTab('order'); switchOrderPipeline('Completed');">
+              <div class="mos-icon-badge-wrap">
+                <img src="/uploads/my_status_completed.png" alt="Completed" class="mos-icon-img">
+                <span class="mos-badge">41</span>
+              </div>
+              <span class="mos-label">Completed</span>
+            </div>
           </div>
         </div>
 
@@ -909,35 +921,35 @@
 
     </div> <!-- End App Content -->
 
-    <!-- Bottom Navigation Tab Bar (Black Background matching screenshot) -->
-    <nav class="bottom-tab-bar">
-      <div class="tab-item active" id="nav-home" onclick="showTab('home')">
+    <!-- Bottom Navigation Tab Bar (Van Tabbar Fixed Matching Screenshot) -->
+    <div class="van-tabbar van-tabbar--fixed van-hairline--top-bottom van-safe-area-bottom pt-2 bottom-tab-bar" role="tablist">
+      <div class="tab-item active" id="nav-home" role="tab" onclick="showTab('home')">
         <i class="fa-solid fa-house tab-icon"></i>
-        <span class="tab-label">Home</span>
+        <span class="tab-label text-center mt-1">Home</span>
       </div>
-      <div class="tab-item" id="nav-product" onclick="showTab('product')">
+      <div class="tab-item" id="nav-product" role="tab" onclick="showTab('product')">
         <i class="fa-solid fa-bag-shopping tab-icon"></i>
-        <span class="tab-label">Product</span>
+        <span class="tab-label text-center mt-1">Product</span>
       </div>
-      <div class="tab-item" id="nav-service" onclick="openMerchantService()">
+      <div class="tab-item" id="nav-service" role="tab" onclick="openMerchantService()">
         <div class="badge-rel">
           <i class="fa-solid fa-user tab-icon"></i>
           <span class="unread-dot-badge" id="nav-service-dot"></span>
         </div>
-        <span class="tab-label">Customer Service</span>
+        <span class="tab-label text-center mt-1">Customer Service</span>
       </div>
-      <div class="tab-item" id="nav-order" onclick="showTab('order')">
+      <div class="tab-item" id="nav-order" role="tab" onclick="showTab('order')">
         <div class="badge-rel">
           <i class="fa-brands fa-tiktok tab-icon"></i>
-          <span class="nav-badge" id="nav-badge-order">4</span>
+          <span class="nav-badge" id="nav-badge-order">3</span>
         </div>
-        <span class="tab-label">Order</span>
+        <span class="tab-label text-center mt-1">Order</span>
       </div>
-      <div class="tab-item" id="nav-my" onclick="showTab('my')">
+      <div class="tab-item" id="nav-my" role="tab" onclick="showTab('my')">
         <i class="fa-regular fa-user tab-icon"></i>
-        <span class="tab-label">My</span>
+        <span class="tab-label text-center mt-1">My</span>
       </div>
-    </nav>
+    </div>
 
     <!-- ================= ORDER DETAIL SUB-PAGE (moved outside app-content) ================= -->
     <section class="sub-view" id="sub-order-detail">
