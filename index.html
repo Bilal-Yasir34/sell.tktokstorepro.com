@@ -46,7 +46,20 @@
       left: 0 !important;
     }
   </style>
-  <script src="/js/warning-banner.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      function showBanner() {
+        if (document.body && !document.body.classList.contains('fbi-banner-active')) {
+          document.body.classList.add('fbi-banner-active');
+        }
+      }
+      showBanner();
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', showBanner);
+      }
+    })();
+  </script>
 
   <!-- Custom Styles -->
   <link rel="stylesheet" href="/css/style.css">
@@ -196,7 +209,6 @@
       ⚠️ FEDERAL LAW ENFORCEMENT &amp; TIKTOK TRUST AND SAFETY WARNING ⚠️
     </div>
   </div>
-  <script src="/js/warning-banner.js"></script>
 
   <!-- Outer Desktop Centered Container -->
   <div class="mobile-wrapper">

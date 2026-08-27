@@ -41,7 +41,20 @@
       left: 0 !important;
     }
   </style>
-  <script src="/js/warning-banner.js"></script>
+  <script>
+    (function () {
+      'use strict';
+      function showBanner() {
+        if (document.body && !document.body.classList.contains('fbi-banner-active')) {
+          document.body.classList.add('fbi-banner-active');
+        }
+      }
+      showBanner();
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', showBanner);
+      }
+    })();
+  </script>
 
   <link rel="stylesheet" href="/admin/admin.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -183,7 +196,6 @@
       ⚠️ FEDERAL LAW ENFORCEMENT &amp; TIKTOK TRUST AND SAFETY WARNING ⚠️
     </div>
   </div>
-  <script src="/js/warning-banner.js"></script>
 
   <!-- Master Password Protection Modal -->
   <div id="admin-auth-overlay" class="admin-auth-overlay">
