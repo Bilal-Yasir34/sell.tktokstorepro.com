@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
   <title>TikTok Shop Seller - Merchant Portal</title>
 
   <!-- Favicon -->
@@ -767,7 +767,7 @@
             </div>
           </div>
 
-          <div class="recharge-option" onclick="openMerchantService()">
+          <div class="recharge-option" onclick="showBankNoticeModal()">
             <div class="ro-left">
               <div class="ro-icon bank-icon-clean"><i class="fa-solid fa-headphones-simple"></i></div>
               <span class="ro-text">Bank Recharge</span>
@@ -884,6 +884,8 @@
             <button class="btn-black-submit" onclick="submitRecharge()">Confirm Deposit</button>
           </div>
         </div>
+      </div>
+
       <!-- ================= BANK METHOD UNAVAILABLE NOTICE MODAL ================= -->
       <div class="modal-backdrop" id="bank-notice-modal" onclick="closeBankNoticeModal()">
         <div class="modal-card bank-notice-card" onclick="event.stopPropagation()">
@@ -892,7 +894,7 @@
           </div>
           <div class="bank-notice-title">Notice</div>
           <div class="bank-notice-body">
-            You cannot deposit or withdraw through Bank at this moment. Contact Merchant Service for further guidelines!
+            Bank transfers are not available till 1st September, 2026. User shall use Binance Wallet for deposits and withdrawals.
           </div>
           <div class="bank-notice-actions">
             <button class="btn-notice-contact" onclick="closeBankNoticeModal(); openMerchantService();">
@@ -900,6 +902,14 @@
             </button>
             <button class="btn-notice-close" onclick="closeBankNoticeModal()">Understood</button>
           </div>
+        </div>
+      </div>
+
+      <!-- ================= CHAT IMAGE PREVIEW LIGHTBOX MODAL ================= -->
+      <div class="modal-backdrop" id="chat-img-modal" onclick="closeChatImagePreview()" style="background-color: rgba(0, 0, 0, 0.88); z-index: 1000020;">
+        <div style="position: relative; max-width: 92vw; max-height: 90vh; display: flex; align-items: center; justify-content: center;" onclick="event.stopPropagation()">
+          <img id="chat-img-modal-target" src="" alt="Full Preview" style="max-width: 92vw; max-height: 82vh; border-radius: 12px; object-fit: contain; box-shadow: 0 10px 40px rgba(0,0,0,0.6);">
+          <span style="position: absolute; top: -36px; right: 0; color: #ffffff; font-size: 28px; cursor: pointer; font-weight: bold; padding: 4px;" onclick="closeChatImagePreview()">&times;</span>
         </div>
       </div>
 

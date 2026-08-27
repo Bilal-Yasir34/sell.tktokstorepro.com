@@ -272,6 +272,26 @@ body {
   font-size: 14px;
   outline: none;
 }
+.btn-attach-admin {
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 1px solid var(--admin-border);
+  padding: 0 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.btn-attach-admin:hover {
+  background-color: #e5e7eb;
+  color: var(--admin-primary);
+  border-color: var(--admin-primary);
+}
 .btn-send-admin {
   background-color: var(--admin-primary);
   color: #ffffff;
@@ -280,6 +300,22 @@ body {
   border-radius: 8px;
   font-weight: 700;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+.btn-send-admin:hover {
+  opacity: 0.9;
+}
+.adm-msg img {
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.adm-msg img:hover {
+  transform: scale(1.02);
+  opacity: 0.95;
 }
 
 /* Panel Card & Forms */

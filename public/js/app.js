@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let faqs = [];
   let salesChart = null;
   let currentOrderPipeline = 'Awaiting Pickup';
-  let selectedWithdrawalMethod = 'Bank Card';
+  let selectedWithdrawalMethod = 'Blockchain';
   let clientPollingTimer = null;
   let pickupTimerHours = 24; // Admin-configurable; fetched from /api/settings
   let orderTimers = {};      // Per-order timer map: { orderId: hours }
@@ -1025,27 +1025,84 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.key === 'Enter') handleSendMessage();
     });
 
-    sendBtn.addEventListener('click', handleSendMessage);
+    input.addEventListener('focus', () => {
+      setTimeout(() => {
+        if (window.visualViewport) {
+          const serviceView = document.getElementById('sub-service');
+          if (serviceView && serviceView.classList.contains('active')) {
+            serviceView.style.height = `${window.visualViewport.height}px`;
+          }
+        }
+        scrollChatToBottom();
+        try {
+          input.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        } catch (e) {}
+      }, 250);
+    });
+
+    input.addEventListener('blur', () => {
+      setTimeout(() => {
+        const serviceView = document.getElementById('sub-service');
+        if (serviceView && serviceView.classList.contains('active')) {
+          if (window.visualViewport) {
+            serviceView.style.height = `${window.visualViewport.height}px`;
+          } else {
+            serviceView.style.height = '';
+          }
+        }
+        window.scrollTo(0, 0);
+      }, 100);
+    });
+
+    sendBtn.addEventListener('click', () => handleSendMessage());
 
     plusBtn.addEventListener('click', () => fileInput.click());
 
     fileInput.addEventListener('change', async () => {
       if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
         const formData = new FormData();
-        formData.append('image', fileInput.files[0]);
+        formData.append('image', file);
+        showToast('Uploading image...');
+
         try {
           const res = await fetch('/api/upload-chat-image', { method: 'POST', body: formData });
           const json = await res.json();
-          if (json.success) {
-            await fetch('/api/messages', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ sender: 'client', image_url: json.url })
-            });
-            await fetchChatMessages();
+          if (json.success && json.url) {
+            await handleSendMessage(json.url);
+            showToast('Image sent successfully');
+          } else {
+            showToast(json.error || 'Image upload failed');
           }
         } catch (err) {
+          console.error('Chat image upload error:', err);
           showToast('Image upload failed');
+        }
+        fileInput.value = '';
+      }
+    });
+
+    // Paste image from clipboard directly in chat
+    input.addEventListener('paste', async (e) => {
+      const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+      for (let item of items) {
+        if (item.type.indexOf('image') !== -1) {
+          const blob = item.getAsFile();
+          const formData = new FormData();
+          formData.append('image', blob);
+          showToast('Uploading pasted image...');
+
+          try {
+            const res = await fetch('/api/upload-chat-image', { method: 'POST', body: formData });
+            const json = await res.json();
+            if (json.success && json.url) {
+              await handleSendMessage(json.url);
+              showToast('Pasted image sent');
+            }
+          } catch (err) {
+            console.error('Pasted image upload error:', err);
+          }
+          break;
         }
       }
     });
@@ -1084,18 +1141,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  async function handleSendMessage() {
+  async function handleSendMessage(imageUrl = '') {
     const input = document.getElementById('chat-input');
-    const text = input.value.trim();
-    if (!text) return;
-    input.value = '';
-    document.getElementById('chat-send-btn').classList.remove('active');
+    const text = input ? input.value.trim() : '';
+    if (!text && !imageUrl) return;
+    if (input) input.value = '';
+    const sendBtn = document.getElementById('chat-send-btn');
+    if (sendBtn) sendBtn.classList.remove('active');
 
     try {
       const res = await fetch('/api/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sender: 'client', message: text })
+        body: JSON.stringify({ sender: 'client', message: text, image_url: imageUrl })
       });
       const data = await res.json();
       if (data.success && data.data) {
@@ -1117,7 +1175,7 @@ document.addEventListener('DOMContentLoaded', () => {
     container.innerHTML = chatMessages.map(m => `
       <div class="chat-bubble-wrap ${m.sender}">
         <div class="chat-bubble">
-          ${m.image_url ? `<img src="${m.image_url}" class="chat-img-msg" alt="Attachment"><br>` : ''}
+          ${m.image_url ? `<img src="${m.image_url}" class="chat-img-msg" alt="Attachment" onclick="openChatImagePreview('${m.image_url}')" title="Click to enlarge"><br>` : ''}
           ${m.message ? m.message.replace(/\n/g, '<br>') : ''}
         </div>
         <div class="chat-time">${formatTime(m.created_at)}</div>
@@ -1126,6 +1184,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     scrollChatToBottom();
   }
+
+  window.openChatImagePreview = function(src) {
+    const modal = document.getElementById('chat-img-modal');
+    const target = document.getElementById('chat-img-modal-target');
+    if (modal && target) {
+      target.src = src;
+      modal.classList.add('active');
+    }
+  };
+
+  window.closeChatImagePreview = function() {
+    const modal = document.getElementById('chat-img-modal');
+    if (modal) modal.classList.remove('active');
+  };
 
   function scrollChatToBottom() {
     const body = document.getElementById('chat-body');
@@ -1336,7 +1408,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Sub View Handlers
   window.openMerchantService = function() {
-    document.getElementById('sub-service').classList.add('active');
+    const service = document.getElementById('sub-service');
+    if (service) {
+      service.classList.add('active');
+      if (window.visualViewport) {
+        service.style.height = `${window.visualViewport.height}px`;
+      }
+    }
     if (chatMessages && chatMessages.length > 0) {
       const adminMsgs = chatMessages.filter(m => m.sender === 'admin');
       if (adminMsgs.length > 0) {
@@ -1346,13 +1424,41 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
     hideUnreadServiceDots();
-    scrollChatToBottom();
+    setTimeout(scrollChatToBottom, 100);
   };
 
   window.closeSubView = function(viewId) {
     const view = document.getElementById(viewId);
-    if (view) view.classList.remove('active');
+    if (view) {
+      view.classList.remove('active');
+      view.style.height = '';
+      view.style.bottom = '';
+    }
   };
+
+  // Virtual Viewport Keyboard Handler for Merchant Chat
+  if (window.visualViewport) {
+    const handleViewportChange = () => {
+      const serviceView = document.getElementById('sub-service');
+      const chatBody = document.getElementById('chat-body');
+      const chatInput = document.getElementById('chat-input');
+      if (serviceView && serviceView.classList.contains('active')) {
+        const vh = window.visualViewport.height;
+        serviceView.style.height = `${vh}px`;
+        serviceView.style.bottom = 'auto';
+        if (document.activeElement === chatInput) {
+          if (chatBody) {
+            chatBody.scrollTop = chatBody.scrollHeight;
+          }
+          try {
+            chatInput.scrollIntoView({ block: 'nearest' });
+          } catch (e) {}
+        }
+      }
+    };
+    window.visualViewport.addEventListener('resize', handleViewportChange);
+    window.visualViewport.addEventListener('scroll', handleViewportChange);
+  }
 
   window.openRecharge = function() {
     document.getElementById('sub-recharge').classList.add('active');
@@ -1735,6 +1841,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.chooseWithdrawalMethod = function(method) {
     closeWithdrawalMethodSheet();
+    if (method.toLowerCase().includes('bank')) {
+      showBankNoticeModal();
+      return;
+    }
+
     selectedWithdrawalMethod = method;
 
     const label = document.getElementById('withdraw-selected-method');
@@ -1746,10 +1857,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const bankFields = document.getElementById('bank-card-fields');
     const blockchainFields = document.getElementById('blockchain-fields');
 
-    if (method === 'Bank Card') {
-      if (bankFields) bankFields.style.display = 'block';
-      if (blockchainFields) blockchainFields.style.display = 'none';
-    } else if (method === 'Blockchain') {
+    if (method === 'Blockchain') {
       if (bankFields) bankFields.style.display = 'none';
       if (blockchainFields) blockchainFields.style.display = 'block';
     } else {
@@ -1767,6 +1875,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Submit Withdrawal Request
   window.submitWithdrawal = async function() {
+    if (selectedWithdrawalMethod && selectedWithdrawalMethod.toLowerCase().includes('bank')) {
+      showBankNoticeModal();
+      return;
+    }
+
     const amount = parseFloat(document.getElementById('withdraw-amount').value);
     const fullName = document.getElementById('withdraw-fullname') ? document.getElementById('withdraw-fullname').value.trim() : '';
     const bankName = document.getElementById('withdraw-bankname') ? document.getElementById('withdraw-bankname').value.trim() : '';

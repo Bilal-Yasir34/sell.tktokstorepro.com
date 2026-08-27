@@ -8,17 +8,17 @@
       "level": "V0",
       "rating": 5,
       "credit_score": 97,
-      "followers": 58,
-      "balance": 7.16,
+      "followers": 68,
+      "balance": 1026.22,
       "pending_balance": 42545.62,
-      "total_income": 98780.86,
-      "today_orders": 9,
-      "today_sales": 3196.43,
-      "today_profit": 479.47,
-      "visitors_today": 1334,
-      "visitors_7days": 10622,
-      "visitors_30days": 43350,
-      "rating_rate": 96,
+      "total_income": 98780.77,
+      "today_orders": 1,
+      "today_sales": 0,
+      "today_profit": 0,
+      "visitors_today": 199,
+      "visitors_7days": 10509,
+      "visitors_30days": 44713,
+      "rating_rate": 97,
       "notice": "Dear users, please pay attention to your payment. Late payments may negatively impact the store's credit score and other aspects."
     }
   ],
@@ -387,60 +387,28 @@
   "transactions": [],
   "messages": [
     {
-      "id": 1787695471293,
+      "id": 1787766614417,
       "sender": "admin",
       "message": "✨ Exclusive USDT Top-Up Rewards ✨\n\n💎 Top up 1,000 USDT → Receive $250 bonus\n💎 Top up 5,000 USDT → Receive $1,800 bonus\n💎 Top up 10,000 USDT → Receive $3,500 bonus\n💎 Top up 30,000 USDT → Receive $12,000 bonus\n💎 Top up 50,000 USDT → Receive $20,000 bonus\n\n🔥 Top up now and enjoy generous rewards to boost your store!\n\nIf you have any questions, please don't hesitate to contact our online customer service—we're here to help! 🙌",
       "image_url": "",
       "is_read": 0,
-      "created_at": "2026-08-25 22:04:31"
+      "created_at": "2026-08-26 17:50:14"
     },
     {
-      "id": 1787695534069,
+      "id": 1787778909375,
       "sender": "admin",
-      "message": "Dear Merchant,  We have identified suspicious activity associated with your account. Our system detected that the application link was switched to a previous version during the ongoing maintenance process.  Please be advised that this is the current and updated version of the TikTok Seller Center. Merchants are required to use the latest version to ensure proper system functionality, security, and uninterrupted access to their accounts.  Repeatedly switching between the updated and previous versions may result in temporary or permanent account restrictions, in accordance with our system security policies.  We kindly ask you to cooperate with our services and continue using the latest updated version of TikTok Seller Center. Please do not switch back to older versions or unauthorized application links.  Thank you for your understanding and cooperation.  Regards, Team TikTok Seller Center",
+      "message": "Final Account Security Warning  Dear Merchant,  This is your final account security warning regarding repeated switching between older and newer application versions or access links.  For the security and stability of your account, you must use only the currently authorized version of the Seller Center. Any further unauthorized switching between application versions or access links may result in additional account restrictions, including limitations on certain account functions.  Please note that no new access links will be distributed by the Merchant Service Team. Future system updates and maintenance changes will be implemented through the same authorized access link currently being used. Merchants should not expect or request a replacement link when the system is updated.  If a merchant accidentally accesses an older version or chooses to use an unauthorized or third-party link, any resulting security, access, or account-related issues may not be covered by the Seller Center Service Team. Merchants are therefore responsible for ensuring that they use only the authorized and current version.  According to the information currently recorded in our system, your account has a previous restriction that is scheduled for review and clearance on August 28, 2026, at 8:00 PM EST, subject to the account remaining compliant with security requirements.  Any further suspicious or unauthorized activity may result in additional restrictions. If an account becomes restricted, access to certain Seller Center functions may remain limited until the required security review has been completed.  Our Seller Center Service Team is continuously working to provide merchants with a secure and reliable experience. We strongly encourage you to cooperate with the system requirements and avoid accessing outdated, modified, or unauthorized versions.  Thank you for your cooperation and understanding.  Regards, Seller Center Support Team",
       "image_url": "",
       "is_read": 0,
-      "created_at": "2026-08-25 22:05:34"
+      "created_at": "2026-08-26 21:15:09"
     },
     {
-      "id": 1787696456345,
+      "id": 1787783154009,
       "sender": "admin",
-      "message": "System Maintenance Notice:  Dear Merchant,  Please be informed that scheduled system maintenance will take place on August 26, 2026, from 4:00 AM to 9:30 AM.  During this maintenance period, merchants are advised to avoid making unauthorized changes, switching application links, or attempting to access previous versions of the system, as this may interfere with the maintenance process.  Merchants may continue to pick up and process orders before 4:00 AM or after 9:30 AM. We recommend completing any necessary order-related activities outside the scheduled maintenance window.  Thank you for your patience, cooperation, and understanding.  Regards, Seller Center Support Team",
+      "message": "Important Final Notice Regarding Authorized Access  Dear Merchant,  Please be advised that merchants should access the Seller Center only through the currently authorized and verified link. If you receive any alternative link through an unauthorized source or an unverified channel, please do not access or use it, as the Seller Center Service Team cannot guarantee the security, authenticity, or functionality of such links.  Going forward, system updates will be implemented through the currently authorized access link. Merchants should not switch between different versions or links unless specifically instructed through an official and verified communication channel.  Please also be aware that system updates may be rolled out gradually across different regions. As a result, some merchants may temporarily see an older version while others have already received the updated version. Merchants who have received the newer version should continue using it and should not switch back to an older version.  For your account security, please disregard outdated, unauthorized, or third-party links and use only the verified version available to your account.  This notice serves as a final reminder to all merchants to follow the authorized access and system-update procedures.  Thank you for your cooperation and understanding.  Regards, Seller Center Support Team",
       "image_url": "",
       "is_read": 0,
-      "created_at": "2026-08-25 22:20:56"
-    },
-    {
-      "id": 1787697227130,
-      "sender": "client",
-      "message": "Hello Sir, can you please tell me that when will I get the amount of shipped orders in my account balance?",
-      "image_url": "",
-      "is_read": 0,
-      "created_at": "2026-08-25 22:33:47"
-    },
-    {
-      "id": 1787699010587,
-      "sender": "admin",
-      "message": "Dear Merchant,  Please be informed that your pending amount is expected to be reflected in your available balance within 2–4 days following the completion of the system update.  Please also note that order history from previous orders may no longer be visible once the complete system update has been fully rolled out.  We appreciate your patience and understanding while the update is being completed.  Regards, Seller Center Support Team",
-      "image_url": "",
-      "is_read": 0,
-      "created_at": "2026-08-25 23:03:30"
-    },
-    {
-      "id": 1787730611850,
-      "sender": "client",
-      "message": "Hello sir i need the latest version link of app",
-      "image_url": "",
-      "is_read": 0,
-      "created_at": "2026-08-26 07:50:11"
-    },
-    {
-      "id": 1787738440994,
-      "sender": "admin",
-      "message": "Dear Merchant,  Please be advised that merchants should only use officially verified TikTok Seller Center applications and links. Any link provided by an unauthorized third party may not be legitimate, and merchants should exercise caution when accessing or installing applications through unverified sources.  During application updates or scheduled maintenance, the system may automatically update the installed application with the latest authorized version. Merchants are therefore advised not to switch to previous versions, outdated links, or unauthorized application sources.  Please note that while an older version or link may continue to function, using outdated or unauthorized versions may result in account restrictions or other security-related issues, which could potentially affect account access and the ability to process deposits or withdrawals.  For your security, always verify that you are using the official and most up-to-date version of the Seller Center. Currently, this is the only trusted link and we are working on shifting the servers to a more reliable and secured platform. Thank you for your understanding and cooperation.  Regards, Seller Center Support Team",
-      "image_url": "",
-      "is_read": 0,
-      "created_at": "2026-08-26 10:00:40"
+      "created_at": "2026-08-26 22:25:54"
     }
   ],
   "notifications": [

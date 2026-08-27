@@ -119,6 +119,8 @@
             </div>
 
             <div class="desk-input-bar">
+              <button type="button" class="btn-attach-admin" id="admin-chat-attach-btn" title="Send Image to Merchant"><i class="fa-solid fa-image"></i> Send Image</button>
+              <input type="file" id="admin-chat-file-input" accept="image/*" style="display:none;">
               <input type="text" id="admin-chat-input" placeholder="Type official response to merchant..." autocomplete="off">
               <button class="btn-send-admin" id="admin-chat-send-btn"><i class="fa-solid fa-paper-plane"></i> Send Reply</button>
             </div>
@@ -453,6 +455,14 @@
           <button type="submit" class="btn-primary" style="width:100%;"><i class="fa-solid fa-plus-circle"></i> Add Order to Merchant Pipeline</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Admin Image Preview Lightbox Modal -->
+  <div id="admin-img-modal" onclick="closeAdminImagePreview()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:999999; justify-content:center; align-items:center;">
+    <div style="position:relative; max-width:90vw; max-height:90vh; display:flex; align-items:center; justify-content:center;" onclick="event.stopPropagation()">
+      <img id="admin-img-modal-target" src="" alt="Full Preview" style="max-width:90vw; max-height:85vh; border-radius:8px; object-fit:contain; box-shadow:0 10px 40px rgba(0,0,0,0.5);">
+      <span style="position:absolute; top:-35px; right:0; color:#ffffff; font-size:28px; cursor:pointer; font-weight:bold;" onclick="closeAdminImagePreview()">&times;</span>
     </div>
   </div>
 

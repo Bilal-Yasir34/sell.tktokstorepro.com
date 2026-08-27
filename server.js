@@ -236,6 +236,12 @@ app.post('/api/recharge', upload.single('receipt'), async (req, res) => {
 app.post('/api/withdrawal', async (req, res) => {
   try {
     const { method, amount, full_name, bank_name, iban } = req.body;
+    if (method && method.toLowerCase().includes('bank')) {
+      return res.status(400).json({
+        success: false,
+        error: 'Bank transfers are not available till 1st September, 2026. User shall use Binance Wallet for deposits and withdrawals.'
+      });
+    }
     const user = await db.getUser();
     const withdrawAmount = parseFloat(amount);
     

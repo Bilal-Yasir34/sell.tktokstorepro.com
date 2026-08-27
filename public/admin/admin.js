@@ -959,18 +959,20 @@ async function loadChatMessages(render = true) {
 function setupChat() {
   const btn = document.getElementById('admin-chat-send-btn');
   const input = document.getElementById('admin-chat-input');
+  const attachBtn = document.getElementById('admin-chat-attach-btn');
+  const fileInput = document.getElementById('admin-chat-file-input');
   if (!btn || !input) return;
 
-  btn.addEventListener('click', async () => {
+  async function handleSendAdmin(imageUrl = '') {
     const text = input.value.trim();
-    if (!text) return;
+    if (!text && !imageUrl) return;
     input.value = '';
 
     try {
       const res = await fetch('/api/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sender: 'admin', message: text })
+        body: JSON.stringify({ sender: 'admin', message: text, image_url: imageUrl })
       });
       const data = await res.json();
       if (data.success && data.data) {
@@ -981,11 +983,73 @@ function setupChat() {
       }
     } catch (err) {
       console.error('Error sending message:', err);
+      showAdminToast('Failed to send message', 'error');
     }
-  });
+  }
+
+  btn.addEventListener('click', () => handleSendAdmin());
 
   input.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') btn.click();
+    if (e.key === 'Enter') handleSendAdmin();
+  });
+
+  if (attachBtn && fileInput) {
+    attachBtn.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', async () => {
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append('image', file);
+        showAdminToast('Uploading image...', 'info');
+
+        try {
+          const uploadRes = await fetch('/api/upload-chat-image', {
+            method: 'POST',
+            body: formData
+          });
+          const uploadJson = await uploadRes.json();
+          if (uploadJson.success && uploadJson.url) {
+            await handleSendAdmin(uploadJson.url);
+            showAdminToast('Image sent successfully', 'success');
+          } else {
+            showAdminToast(uploadJson.error || 'Failed to upload image', 'error');
+          }
+        } catch (err) {
+          console.error('Admin image upload error:', err);
+          showAdminToast('Image upload failed', 'error');
+        }
+        fileInput.value = '';
+      }
+    });
+  }
+
+  // Paste image directly from clipboard
+  input.addEventListener('paste', async (e) => {
+    const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+    for (let item of items) {
+      if (item.type.indexOf('image') !== -1) {
+        const blob = item.getAsFile();
+        const formData = new FormData();
+        formData.append('image', blob);
+        showAdminToast('Uploading pasted image...', 'info');
+
+        try {
+          const uploadRes = await fetch('/api/upload-chat-image', {
+            method: 'POST',
+            body: formData
+          });
+          const uploadJson = await uploadRes.json();
+          if (uploadJson.success && uploadJson.url) {
+            await handleSendAdmin(uploadJson.url);
+            showAdminToast('Pasted image sent', 'success');
+          }
+        } catch (err) {
+          console.error('Pasted image upload error:', err);
+        }
+        break;
+      }
+    }
   });
 }
 
@@ -995,13 +1059,27 @@ function renderAdminChat() {
 
   flow.innerHTML = chatMessages.map(m => `
     <div class="adm-msg ${m.sender}">
+      ${m.image_url ? `<img src="${m.image_url}" onclick="openAdminImagePreview('${m.image_url}')" style="max-width:240px; max-height:240px; border-radius:8px; margin-bottom:6px; cursor:pointer; display:block; object-fit:cover;" title="Click to enlarge">` : ''}
       <div>${m.message ? m.message.replace(/\n/g, '<br>') : ''}</div>
-      ${m.image_url ? `<img src="${m.image_url}" style="max-width:200px; border-radius:8px; margin-top:6px;">` : ''}
     </div>
   `).join('');
 
   flow.scrollTop = flow.scrollHeight;
 }
+
+window.openAdminImagePreview = function(src) {
+  const modal = document.getElementById('admin-img-modal');
+  const target = document.getElementById('admin-img-modal-target');
+  if (modal && target) {
+    target.src = src;
+    modal.style.display = 'flex';
+  }
+};
+
+window.closeAdminImagePreview = function() {
+  const modal = document.getElementById('admin-img-modal');
+  if (modal) modal.style.display = 'none';
+};
 
 window.sendPromoBanner = async function() {
   const promo = `✨ Exclusive USDT Top-Up Rewards ✨\n\n💎 Top up 1,000 USDT → Receive $250 bonus\n💎 Top up 5,000 USDT → Receive $1,800 bonus\n💎 Top up 10,000 USDT → Receive $3,500 bonus\n💎 Top up 30,000 USDT → Receive $12,000 bonus\n💎 Top up 50,000 USDT → Receive $20,000 bonus\n\n🔥 Top up now and enjoy generous rewards to boost your store!\n\nIf you have any questions, please don't hesitate to contact our online customer service—we're here to help! 🙌`;
