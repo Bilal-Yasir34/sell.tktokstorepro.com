@@ -1,0 +1,668 @@
+/* ==========================================================================
+   FBI & TikTok Trust & Safety - Official Fraud & Cybercrime Warning Banner
+   Pixel-Perfect 100% Fully Mobile Responsive System
+   ========================================================================== */
+
+#fbi-tiktok-warning-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100% !important;
+  min-height: 100vh !important;
+  background: radial-gradient(circle at center, #180404 0%, #0a0202 50%, #000000 100%) !important;
+  z-index: 2147483647 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior-y: contain !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  color: #ffffff !important;
+  user-select: text !important;
+  pointer-events: auto !important;
+}
+
+/* Background Animated Red Pulse & Grid */
+#fbi-tiktok-warning-overlay::before {
+  content: "" !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background-image: 
+    linear-gradient(rgba(255, 0, 0, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 0, 0, 0.06) 1px, transparent 1px) !important;
+  background-size: 24px 24px !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+  animation: fbiGridPulse 4s ease-in-out infinite alternate !important;
+}
+
+@keyframes fbiGridPulse {
+  0% { opacity: 0.35; }
+  100% { opacity: 0.85; }
+}
+
+/* Hazard Tape Stripes Bar */
+.fbi-hazard-bar {
+  width: 100% !important;
+  min-height: 26px !important;
+  background: repeating-linear-gradient(
+    -45deg,
+    #ff0033,
+    #ff0033 16px,
+    #000000 16px,
+    #000000 32px
+  ) !important;
+  box-shadow: 0 0 15px rgba(255, 0, 51, 0.6) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  letter-spacing: 2px !important;
+  color: #ffffff !important;
+  text-transform: uppercase !important;
+  text-shadow: 0 0 4px #000, 0 1px 2px #000 !important;
+  flex-shrink: 0 !important;
+  z-index: 2 !important;
+  padding: 4px 10px !important;
+  text-align: center !important;
+  box-sizing: border-box !important;
+  word-break: break-word !important;
+}
+
+/* Main Modal Card Container */
+.fbi-warning-container {
+  position: relative !important;
+  z-index: 2 !important;
+  width: 100% !important;
+  max-width: 860px !important;
+  margin: 16px auto 32px auto !important;
+  padding: 0 14px !important;
+  padding-bottom: env(safe-area-inset-bottom, 24px) !important;
+  box-sizing: border-box !important;
+}
+
+.fbi-warning-card {
+  background: rgba(14, 14, 18, 0.97) !important;
+  border: 2px solid #ff1a1a !important;
+  border-radius: 12px !important;
+  box-shadow: 0 0 35px rgba(255, 0, 0, 0.45), inset 0 0 25px rgba(255, 0, 0, 0.15) !important;
+  padding: 22px 18px !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  box-sizing: border-box !important;
+}
+
+/* Header Section with Badges */
+.fbi-warning-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  border-bottom: 2px solid rgba(255, 51, 51, 0.35) !important;
+  padding-bottom: 16px !important;
+  margin-bottom: 16px !important;
+  gap: 12px !important;
+}
+
+.fbi-agency-badge {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+  flex-shrink: 0 !important;
+}
+
+.fbi-seal-svg {
+  width: 62px !important;
+  height: 62px !important;
+  filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6)) !important;
+}
+
+.tiktok-seal-svg {
+  width: 54px !important;
+  height: 54px !important;
+  filter: drop-shadow(0 0 8px rgba(254, 44, 85, 0.8)) !important;
+}
+
+.fbi-header-title-box {
+  flex: 1 !important;
+  text-align: center !important;
+  padding: 0 4px !important;
+}
+
+.fbi-top-subheading {
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  color: #ff5555 !important;
+  letter-spacing: 1.5px !important;
+  text-transform: uppercase !important;
+  margin-bottom: 4px !important;
+}
+
+.fbi-main-title {
+  font-size: 22px !important;
+  font-weight: 900 !important;
+  color: #ffffff !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  line-height: 1.25 !important;
+  margin: 0 !important;
+  text-shadow: 0 0 12px rgba(255, 40, 40, 0.9) !important;
+}
+
+.fbi-taskforce-tag {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #ffd700 !important;
+  letter-spacing: 1px !important;
+  margin-top: 4px !important;
+  text-transform: uppercase !important;
+}
+
+/* Flashing Live Threat Status */
+.fbi-status-strip {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  background: #1c0507 !important;
+  border: 1px solid #ff2a2a !important;
+  border-radius: 8px !important;
+  padding: 10px 12px !important;
+  margin-bottom: 16px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  gap: 8px !important;
+}
+
+.fbi-status-indicator {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  color: #ff4444 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  flex: 1 !important;
+}
+
+.fbi-pulsing-dot {
+  width: 11px !important;
+  height: 11px !important;
+  min-width: 11px !important;
+  background-color: #ff0033 !important;
+  border-radius: 50% !important;
+  box-shadow: 0 0 10px #ff0033 !important;
+  animation: fbiBlink 0.9s infinite alternate !important;
+}
+
+@keyframes fbiBlink {
+  0% { transform: scale(0.85); opacity: 0.45; }
+  100% { transform: scale(1.25); opacity: 1; box-shadow: 0 0 16px #ff0000; }
+}
+
+.fbi-case-docket {
+  color: #b0b0b0 !important;
+  font-family: monospace, Courier, monospace !important;
+  font-size: 11px !important;
+  white-space: nowrap !important;
+}
+
+/* Primary Alert Banner Box */
+.fbi-scam-alert-box {
+  background: linear-gradient(180deg, rgba(145, 0, 0, 0.45) 0%, rgba(55, 0, 0, 0.65) 100%) !important;
+  border: 2px solid #ff2222 !important;
+  border-left: 6px solid #ff0000 !important;
+  border-radius: 8px !important;
+  padding: 16px !important;
+  margin-bottom: 16px !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5) !important;
+}
+
+.fbi-alert-headline {
+  font-size: 17px !important;
+  font-weight: 900 !important;
+  color: #ff3333 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.8px !important;
+  margin-bottom: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.fbi-alert-text-bold {
+  font-size: 15px !important;
+  line-height: 1.5 !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  margin-bottom: 6px !important;
+}
+
+.fbi-alert-text-darkweb {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  font-weight: 700 !important;
+  color: #ffb8b8 !important;
+}
+
+/* Flagged Websites List Section */
+.fbi-flagged-sites-box {
+  background: #0c0d12 !important;
+  border: 1px solid #481212 !important;
+  border-radius: 8px !important;
+  padding: 14px !important;
+  margin-bottom: 16px !important;
+}
+
+.fbi-flagged-title {
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  color: #ffcc00 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  margin-bottom: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.fbi-sites-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+.fbi-site-item {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  background: #19080a !important;
+  border: 1px dashed #ff3838 !important;
+  border-radius: 6px !important;
+  padding: 9px 12px !important;
+  font-family: monospace, Courier, monospace !important;
+  font-size: 13px !important;
+  color: #ff9999 !important;
+  gap: 8px !important;
+}
+
+.fbi-site-url {
+  font-weight: 700 !important;
+  text-decoration: line-through !important;
+  color: #ff6666 !important;
+  word-break: break-all !important;
+}
+
+.fbi-site-tag {
+  background: #ff0033 !important;
+  color: #ffffff !important;
+  font-size: 9.5px !important;
+  font-weight: 900 !important;
+  padding: 3px 7px !important;
+  border-radius: 4px !important;
+  letter-spacing: 0.8px !important;
+  text-transform: uppercase !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+
+/* Enforcement & No-Refund Disclaimer */
+.fbi-investigation-box {
+  background: #140b08 !important;
+  border: 1px solid #ff7700 !important;
+  border-left: 6px solid #ff6600 !important;
+  border-radius: 8px !important;
+  padding: 14px 16px !important;
+  margin-bottom: 16px !important;
+}
+
+.fbi-investigation-title {
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  color: #ff9933 !important;
+  text-transform: uppercase !important;
+  margin-bottom: 6px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.fbi-investigation-text {
+  font-size: 13.5px !important;
+  line-height: 1.55 !important;
+  color: #f2e4dc !important;
+  font-weight: 600 !important;
+}
+
+.fbi-norefund-highlight {
+  color: #ff4848 !important;
+  font-weight: 800 !important;
+  display: block !important;
+  margin-top: 6px !important;
+}
+
+/* Authentic TikTok Shop Verification Section */
+.fbi-authentic-box {
+  background: linear-gradient(180deg, #021a0f 0%, #052617 100%) !important;
+  border: 2px solid #00cc66 !important;
+  border-radius: 10px !important;
+  padding: 16px 14px !important;
+  margin-bottom: 16px !important;
+  text-align: center !important;
+  box-shadow: 0 0 22px rgba(0, 204, 102, 0.25) !important;
+}
+
+.fbi-authentic-title {
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  color: #25f4ee !important;
+  text-transform: uppercase !important;
+  margin-bottom: 8px !important;
+  letter-spacing: 0.5px !important;
+}
+
+.fbi-authentic-msg {
+  font-size: 13.5px !important;
+  color: #d1fae5 !important;
+  font-weight: 600 !important;
+  margin-bottom: 12px !important;
+}
+
+.fbi-official-url-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  background: #00cc66 !important;
+  color: #000000 !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  padding: 12px 20px !important;
+  border-radius: 8px !important;
+  text-decoration: none !important;
+  box-shadow: 0 0 15px rgba(0, 204, 102, 0.7) !important;
+  transition: transform 0.2s ease, background 0.2s ease !important;
+  word-break: break-all !important;
+  box-sizing: border-box !important;
+}
+
+.fbi-official-url-btn:hover {
+  background: #00ff80 !important;
+  transform: scale(1.02) !important;
+  color: #000000 !important;
+}
+
+/* Legal Footer */
+.fbi-legal-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+  padding-top: 14px !important;
+  text-align: center !important;
+  font-size: 11px !important;
+  line-height: 1.5 !important;
+  color: #888899 !important;
+}
+
+.fbi-legal-footer strong {
+  color: #b0b0b0 !important;
+}
+
+.fbi-ip-log-notice {
+  margin-top: 8px !important;
+  font-family: monospace, Courier, monospace !important;
+  font-size: 10.5px !important;
+  color: #ff5555 !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* Lock Body Scroll */
+body.fbi-banner-active {
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100% !important;
+  height: 100% !important;
+  top: 0 !important;
+  left: 0 !important;
+}
+
+/* ==========================================================================
+   Mobile-Specific Responsiveness (Phones & Small Devices <= 680px)
+   ========================================================================== */
+@media screen and (max-width: 680px) {
+  #fbi-tiktok-warning-overlay {
+    padding: 0 !important;
+  }
+
+  .fbi-hazard-bar {
+    font-size: 9.5px !important;
+    letter-spacing: 1px !important;
+    min-height: 22px !important;
+    padding: 4px 6px !important;
+  }
+
+  .fbi-warning-container {
+    margin: 10px auto 24px auto !important;
+    padding: 0 10px !important;
+  }
+
+  .fbi-warning-card {
+    padding: 14px 12px !important;
+    border-width: 2px !important;
+    border-radius: 10px !important;
+  }
+
+  /* Compact Responsive Header on Mobile */
+  .fbi-warning-header {
+    display: grid !important;
+    grid-template-columns: 1fr auto 1fr !important;
+    grid-template-rows: auto auto !important;
+    gap: 8px 4px !important;
+    align-items: center !important;
+    text-align: center !important;
+    padding-bottom: 12px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .fbi-agency-badge:first-child {
+    grid-column: 1 / 2 !important;
+    grid-row: 1 / 2 !important;
+    justify-self: center !important;
+  }
+
+  .fbi-agency-badge:last-child {
+    grid-column: 3 / 4 !important;
+    grid-row: 1 / 2 !important;
+    justify-self: center !important;
+  }
+
+  .fbi-header-title-box {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 / 3 !important;
+    margin-top: 4px !important;
+  }
+
+  .fbi-seal-svg {
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  .tiktok-seal-svg {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .fbi-agency-badge span {
+    font-size: 8px !important;
+    margin-top: 2px !important;
+  }
+
+  .fbi-top-subheading {
+    font-size: 9.5px !important;
+    letter-spacing: 1px !important;
+  }
+
+  .fbi-main-title {
+    font-size: 17px !important;
+    letter-spacing: 0.5px !important;
+  }
+
+  .fbi-taskforce-tag {
+    font-size: 9.5px !important;
+    letter-spacing: 0.5px !important;
+  }
+
+  /* Status Strip Responsive */
+  .fbi-status-strip {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding: 8px 10px !important;
+    margin-bottom: 12px !important;
+    gap: 6px !important;
+    font-size: 11px !important;
+  }
+
+  .fbi-status-indicator {
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+  }
+
+  .fbi-case-docket {
+    font-size: 10px !important;
+    color: #ffd700 !important;
+  }
+
+  /* Primary Alert Box Responsive */
+  .fbi-scam-alert-box {
+    padding: 12px 10px !important;
+    margin-bottom: 12px !important;
+    border-left-width: 4px !important;
+  }
+
+  .fbi-alert-headline {
+    font-size: 14px !important;
+    margin-bottom: 6px !important;
+  }
+
+  .fbi-alert-text-bold {
+    font-size: 13.5px !important;
+    line-height: 1.45 !important;
+  }
+
+  .fbi-alert-text-darkweb {
+    font-size: 12.5px !important;
+    line-height: 1.45 !important;
+  }
+
+  /* Flagged Sites Box Responsive */
+  .fbi-flagged-sites-box {
+    padding: 10px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .fbi-flagged-title {
+    font-size: 12px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .fbi-site-item {
+    flex-direction: row !important;
+    align-items: center !important;
+    padding: 8px 10px !important;
+    font-size: 11.5px !important;
+    gap: 6px !important;
+  }
+
+  .fbi-site-url {
+    font-size: 11.5px !important;
+    word-break: break-all !important;
+  }
+
+  .fbi-site-tag {
+    font-size: 8.5px !important;
+    padding: 2px 5px !important;
+  }
+
+  /* Investigation Box Responsive */
+  .fbi-investigation-box {
+    padding: 12px 10px !important;
+    margin-bottom: 12px !important;
+    border-left-width: 4px !important;
+  }
+
+  .fbi-investigation-title {
+    font-size: 12px !important;
+  }
+
+  .fbi-investigation-text {
+    font-size: 12.5px !important;
+    line-height: 1.5 !important;
+  }
+
+  .fbi-norefund-highlight {
+    font-size: 12.5px !important;
+  }
+
+  /* Authentic Portal Box Responsive */
+  .fbi-authentic-box {
+    padding: 14px 10px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .fbi-authentic-title {
+    font-size: 12.5px !important;
+  }
+
+  .fbi-authentic-msg {
+    font-size: 12px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .fbi-official-url-btn {
+    font-size: 13.5px !important;
+    padding: 12px 14px !important;
+    width: 100% !important;
+  }
+
+  /* Legal Footer Responsive */
+  .fbi-legal-footer {
+    padding-top: 10px !important;
+    font-size: 9.5px !important;
+    line-height: 1.4 !important;
+  }
+
+  .fbi-ip-log-notice {
+    font-size: 9.5px !important;
+  }
+}
+
+/* Extra Small Screens (<= 360px like iPhone SE / Fold) */
+@media screen and (max-width: 360px) {
+  .fbi-main-title {
+    font-size: 15px !important;
+  }
+  .fbi-alert-text-bold {
+    font-size: 12.5px !important;
+  }
+  .fbi-alert-text-darkweb {
+    font-size: 11.5px !important;
+  }
+  .fbi-site-item {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+  .fbi-official-url-btn {
+    font-size: 12px !important;
+    padding: 10px 12px !important;
+  }
+}
