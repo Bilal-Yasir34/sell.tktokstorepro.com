@@ -1027,30 +1027,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     input.addEventListener('focus', () => {
       setTimeout(() => {
-        if (window.visualViewport) {
-          const serviceView = document.getElementById('sub-service');
-          if (serviceView && serviceView.classList.contains('active')) {
-            serviceView.style.height = `${window.visualViewport.height}px`;
-          }
-        }
         scrollChatToBottom();
         try {
           input.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         } catch (e) {}
-      }, 250);
+      }, 150);
     });
 
     input.addEventListener('blur', () => {
       setTimeout(() => {
-        const serviceView = document.getElementById('sub-service');
-        if (serviceView && serviceView.classList.contains('active')) {
-          if (window.visualViewport) {
-            serviceView.style.height = `${window.visualViewport.height}px`;
-          } else {
-            serviceView.style.height = '';
-          }
-        }
-        window.scrollTo(0, 0);
+        scrollChatToBottom();
       }, 100);
     });
 
@@ -1411,9 +1397,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const service = document.getElementById('sub-service');
     if (service) {
       service.classList.add('active');
-      if (window.visualViewport) {
-        service.style.height = `${window.visualViewport.height}px`;
-      }
     }
     if (chatMessages && chatMessages.length > 0) {
       const adminMsgs = chatMessages.filter(m => m.sender === 'admin');
@@ -1431,8 +1414,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const view = document.getElementById(viewId);
     if (view) {
       view.classList.remove('active');
-      view.style.height = '';
-      view.style.bottom = '';
     }
   };
 
@@ -1443,9 +1424,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const chatBody = document.getElementById('chat-body');
       const chatInput = document.getElementById('chat-input');
       if (serviceView && serviceView.classList.contains('active')) {
-        const vh = window.visualViewport.height;
-        serviceView.style.height = `${vh}px`;
-        serviceView.style.bottom = 'auto';
         if (document.activeElement === chatInput) {
           if (chatBody) {
             chatBody.scrollTop = chatBody.scrollHeight;
@@ -1457,7 +1435,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     };
     window.visualViewport.addEventListener('resize', handleViewportChange);
-    window.visualViewport.addEventListener('scroll', handleViewportChange);
   }
 
   window.openRecharge = function() {
