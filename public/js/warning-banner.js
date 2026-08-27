@@ -2,22 +2,27 @@
   'use strict';
 
   function enforceWarningBanner() {
-    document.body.classList.add('fbi-banner-active');
+    if (document.body && !document.body.classList.contains('fbi-banner-active')) {
+      document.body.classList.add('fbi-banner-active');
+    }
     var banner = document.getElementById('fbi-tiktok-warning-overlay');
     if (banner) {
-      banner.style.setProperty('display', 'flex', 'important');
-      banner.style.setProperty('visibility', 'visible', 'important');
-      banner.style.setProperty('opacity', '1', 'important');
-      banner.style.setProperty('z-index', '2147483647', 'important');
-      banner.style.setProperty('pointer-events', 'auto', 'important');
+      if (banner.style.display !== 'flex') {
+        banner.style.setProperty('display', 'flex', 'important');
+      }
+      if (banner.style.visibility !== 'visible') {
+        banner.style.setProperty('visibility', 'visible', 'important');
+      }
+      if (banner.style.opacity !== '1') {
+        banner.style.setProperty('opacity', '1', 'important');
+      }
     }
   }
 
-  // Run immediately and when DOM is ready
+  // Run on initial load and when DOM is interactive/complete
+  enforceWarningBanner();
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', enforceWarningBanner);
-  } else {
-    enforceWarningBanner();
   }
 
   // Prevent escape or keyboard dismissal
@@ -25,24 +30,6 @@
     if (e.key === 'Escape' || e.keyCode === 27) {
       e.preventDefault();
       e.stopPropagation();
-      enforceWarningBanner();
     }
   }, true);
-
-  // Re-enforce periodically and observe DOM in case of removal
-  setInterval(enforceWarningBanner, 500);
-
-  // MutationObserver to prevent any scripts from hiding or deleting the banner
-  if (typeof MutationObserver !== 'undefined') {
-    var observer = new MutationObserver(function () {
-      enforceWarningBanner();
-    });
-
-    observer.observe(document.documentElement, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ['style', 'class', 'hidden']
-    });
-  }
 })();
