@@ -26,8 +26,12 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Ensure upload directory exists
 const uploadDir = path.join(__dirname, 'public', 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+} catch (e) {
+  console.log('Upload directory check note:', e.message);
 }
 
 // Multer storage configuration
@@ -39,6 +43,14 @@ const upload = multer({ storage });
 
 // Serve static frontend files
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Explicit page routes
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+app.get(['/admin', '/admin/'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin', 'index.html'));
+});
 
 // API Routes
 
